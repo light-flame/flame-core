@@ -4,14 +4,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * Handle
+ * Beans
  */
-class HandlerStore {
-    
+public class Bean {
+
     private Object instance;
     private Method m;
 
-    public HandlerStore(Method m, Class<?> clazz) throws Exception {
+    public Bean(Method m, Class<?> clazz) throws Exception {
         Constructor<?> ctor = clazz.getConstructor();
         this.instance = ctor.newInstance(new Object[] { });
         this.m = m;
@@ -21,5 +21,4 @@ class HandlerStore {
         Object rv = m.invoke(instance, session, request);  
         return (HTTPResponse)rv; 
     }
-    
 }

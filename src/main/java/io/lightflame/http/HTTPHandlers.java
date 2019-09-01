@@ -22,12 +22,11 @@ import io.lightflame.annotations.Handler;
 public class HTTPHandlers {
 
     private static final Logger LOGGER = Logger.getLogger(HTTPHandlers.class);
-    private Map<String, HandlerStore> handleMap = new HashMap<>();
 
     public HTTPResponse getHandle(HTTPSession session, HTTPRequest request) throws Exception{
-        HandlerStore handler = handleMap.get(request.getLocation());
+        Bean handler = BeanStore.getBean(request.getLocation());
         if (handler == null) {
-            handler = handleMap.get("404");
+            handler = BeanStore.getBean("404");
         }
         return handler.getResponse(session, request);
     }
@@ -53,14 +52,14 @@ public class HTTPHandlers {
 
             Handler webPath = method.getAnnotation(Handler.class);
             url += webPath.value();
-            handleMap.put(url, new HandlerStore(method, clazz));
+            BeanStore.addBean(url, new Bean(method, clazz));
             LOGGER.info("registering url at: " + url);
         }
     }
 
     private void addCustom404()throws Exception{
         Method m = HTTPHandlers.class.getMethod("handler404", HTTPSession.class, HTTPRequest.class);
-        handleMap.put("404", new HandlerStore(m, HTTPHandlers.class));
+        BeanStore.addBean("404", new Bean(m, HTTPHandlers.class));
     }
 
     public HTTPResponse handler404(HTTPSession session, HTTPRequest request) throws InterruptedException{

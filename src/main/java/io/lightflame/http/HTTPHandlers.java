@@ -33,18 +33,15 @@ public class HTTPHandlers {
     }
 
     public void createHandlers(Class<?> mainCLass) throws Exception {
+        this.addCustom404();
+
         Reflections reflections = new Reflections(new ConfigurationBuilder()
             .setUrls(ClasspathHelper.forPackage(mainCLass.getPackageName()))
             .setScanners(new SubTypesScanner(), new MethodAnnotationsScanner(), new TypeAnnotationsScanner())
         );
-
-        System.out.println(mainCLass.getPackageName());
         
         Map<String, Class<?>> mapClazzes = getMapCLazzes(reflections.getTypesAnnotatedWith(Endpoint.class));
         Set<Method> setMethods = reflections.getMethodsAnnotatedWith(Handler.class);
-
-        Method m = HTTPHandlers.class.getMethod("handler404", HTTPSession.class, HTTPRequest.class);
-        handleMap.put("404", new HandlerStore(m, HTTPHandlers.class));
 
         for (Method method : setMethods){
             String url = "";
@@ -59,6 +56,11 @@ public class HTTPHandlers {
             handleMap.put(url, new HandlerStore(method, clazz));
             LOGGER.info("registering url at: " + url);
         }
+    }
+
+    private void addCustom404()throws Exception{
+        Method m = HTTPHandlers.class.getMethod("handler404", HTTPSession.class, HTTPRequest.class);
+        handleMap.put("404", new HandlerStore(m, HTTPHandlers.class));
     }
 
     public HTTPResponse handler404(HTTPSession session, HTTPRequest request) throws InterruptedException{

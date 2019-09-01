@@ -18,7 +18,8 @@ public class LightFlame {
         BasicConfigurator.configure();   
         LOGGER.info("Light-flame staring at port 8080");
         try {
-            WebServer server = new WebServer(new InetSocketAddress(8080), clazz);
+            Runnable server = new WebServer(new InetSocketAddress(8080))
+                .createHandlers(clazz);
             while (true) {
                 server.run();
                 Thread.sleep(5);

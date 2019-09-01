@@ -26,6 +26,9 @@ public class HTTPHandlers {
 
     public HTTPResponse getHandle(HTTPSession session, HTTPRequest request) throws Exception{
         HandlerStore handler = handleMap.get(request.getLocation());
+        if (handler == null) {
+            handler = handleMap.get("404");
+        }
         return handler.getResponse(session, request);
     }
 
@@ -39,7 +42,9 @@ public class HTTPHandlers {
         
         Map<String, Class<?>> mapClazzes = getMapCLazzes(reflections.getTypesAnnotatedWith(Endpoint.class));
         Set<Method> setMethods = reflections.getMethodsAnnotatedWith(Handler.class);
-        
+
+        Method m = HTTPHandlers.class.getMethod("handler404", HTTPSession.class, HTTPRequest.class);
+        handleMap.put("404", new HandlerStore(m, HTTPHandlers.class));
 
         for (Method method : setMethods){
             String url = "";
@@ -53,9 +58,13 @@ public class HTTPHandlers {
             url += webPath.value();
             handleMap.put(url, new HandlerStore(method, clazz));
             LOGGER.info("registering url at: " + url);
-
-           
         }
+    }
+
+    public HTTPResponse handler404(HTTPSession session, HTTPRequest request) throws InterruptedException{
+        return new HTTPResponse()
+            .setContent("nothing here... =(".getBytes())
+            .setResponseCode(404);
     }
 
     private static Map<String, Class<?>> getMapCLazzes(Set<Class<?>> setClazzes){

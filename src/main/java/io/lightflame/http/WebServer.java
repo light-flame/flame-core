@@ -31,11 +31,16 @@ public class WebServer implements Runnable {
      * @param address the address to bind on
      * @throws IOException if there are any errors creating the server.
      */
-    public WebServer(InetSocketAddress address, Class<?> clazz) throws Exception {
+    public WebServer(InetSocketAddress address) throws Exception {
         server.socket().bind(address);
         server.configureBlocking(false);
         server.register(selector, SelectionKey.OP_ACCEPT);
+       
+    }
+
+    public WebServer createHandlers(Class<?> clazz) throws Exception{
         httpHandlers.createHandlers(clazz);
+        return this;
     }
 
     /**

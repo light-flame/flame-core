@@ -1,8 +1,6 @@
 package io.lightflame.http;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -15,6 +13,8 @@ import org.reflections.util.ConfigurationBuilder;
 
 import io.lightflame.annotations.Endpoint;
 import io.lightflame.annotations.Handler;
+import io.lightflame.bean.Bean;
+import io.lightflame.bean.HttpBeanStore;
 
 /**
  * HTTPHandlers
@@ -24,11 +24,15 @@ public class HTTPHandlers {
     private static final Logger LOGGER = Logger.getLogger(HTTPHandlers.class);
 
     public HTTPResponse getHandle(HTTPSession session, HTTPRequest request) throws Exception{
-        Bean handler = BeanStore.getBean(request.getLocation());
-        if (handler == null) {
-            handler = BeanStore.getBean("404");
+        String location = request.getLocation();
+        Bean<?> bean = HttpBeanStore.getBeanByURL(location);
+        if (bean == null) {
+            bean = HttpBeanStore.getBean(HTTPHandlers.class);
+            location = "404";
         }
-        return handler.getResponse(session, request);
+        Method m =bean.getMethod(location);
+        Object rv = m.invoke(bean.getInstance(), session, request);  
+        return (HTTPResponse)rv; 
     }
 
     public void createHandlers(Class<?> mainCLass) throws Exception {
@@ -39,41 +43,37 @@ public class HTTPHandlers {
             .setScanners(new SubTypesScanner(), new MethodAnnotationsScanner(), new TypeAnnotationsScanner())
         );
         
-        Map<String, Class<?>> mapClazzes = getMapCLazzes(reflections.getTypesAnnotatedWith(Endpoint.class));
+        Set<Class<?>> setClazzes = reflections.getTypesAnnotatedWith(Endpoint.class);
         Set<Method> setMethods = reflections.getMethodsAnnotatedWith(Handler.class);
+
+        for (Class<?> clazz : setClazzes){
+            HttpBeanStore.addHttpBean(new Bean<>(clazz), clazz);
+        }
 
         for (Method method : setMethods){
             String url = "";
-            Class<?> clazz = mapClazzes.get(method.getDeclaringClass().getName());
-            if (clazz != null){
-                Endpoint webPath =  clazz.getAnnotation(Endpoint.class);
-                url = webPath == null ? "/" : webPath.value();
-            }
+            Class<?> clazz = method.getDeclaringClass();
 
-            Handler webPath = method.getAnnotation(Handler.class);
-            url += webPath.value();
-            BeanStore.addBean(url, new Bean(method, clazz));
+            Endpoint endpointAnn =  clazz.getAnnotation(Endpoint.class);
+            url = endpointAnn == null ? "/" : endpointAnn.value();
+
+            Handler handlerAnn = method.getAnnotation(Handler.class);
+            url += handlerAnn.value();
+            HttpBeanStore.addBeanMethod(clazz, url, method);
             LOGGER.info("registering url at: " + url);
         }
     }
 
     private void addCustom404()throws Exception{
         Method m = HTTPHandlers.class.getMethod("handler404", HTTPSession.class, HTTPRequest.class);
-        BeanStore.addBean("404", new Bean(m, HTTPHandlers.class));
+        HttpBeanStore.addHttpBean(new Bean<>(HTTPHandlers.class), HTTPHandlers.class);
+        HttpBeanStore.addBeanMethod(HTTPHandlers.class, "404", m);
     }
 
     public HTTPResponse handler404(HTTPSession session, HTTPRequest request) throws InterruptedException{
         return new HTTPResponse()
             .setContent("nothing here... =(".getBytes())
             .setResponseCode(404);
-    }
-
-    private static Map<String, Class<?>> getMapCLazzes(Set<Class<?>> setClazzes){
-        Map<String, Class<?>> mapClazzes = new HashMap<>();
-        for (Class<?> clazz : setClazzes){
-            mapClazzes.put(clazz.getName(), clazz);
-        }
-        return mapClazzes;
     }
 
 }

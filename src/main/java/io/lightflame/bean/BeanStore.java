@@ -1,7 +1,6 @@
 package io.lightflame.bean;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -9,24 +8,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class BeanStore{
     
-    static private Map<UUID, Bean<?>> beanMap = new ConcurrentHashMap<>();
+    static private Map<String, Bean<?>> beanMap = new ConcurrentHashMap<>();
 
     // abstract public Bean<?> getBean();
 
-    static public Bean<?> getBean(UUID key){
+    static public Bean<?> getBean(Class<?> key){
         if (key == null){
             return null;
         }
-        return beanMap.get(key);
+        return beanMap.get(key.getName());
     }
 
-    static public UUID addBean(Bean<?> bean){
-        UUID uuid =  UUID.randomUUID();
-        beanMap.put(uuid, bean);
-        return uuid;
+    static public void addBean(Bean<?> bean){
+        beanMap.put(bean.getClazz().getName(), bean);
     }
     
     static public void setBean(Bean<?> bean){
-        beanMap.replace(bean.getKey(), bean);
+        beanMap.replace(bean.getClazz().getName(), bean);
     }
 }

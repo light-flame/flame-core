@@ -38,11 +38,6 @@ public class WebServer implements Runnable {
        
     }
 
-    public WebServer createHandlers(Class<?> clazz) throws Exception{
-        httpHandlers.createHandlers(clazz);
-        return this;
-    }
-
     /**
      * Handle a web request.
      *

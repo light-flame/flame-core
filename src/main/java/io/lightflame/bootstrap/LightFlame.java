@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+import io.lightflame.bean.ConfigBeanFactory;
+import io.lightflame.bean.HttpBeanFactory;
 import io.lightflame.http.WebServer;
 
 /**
@@ -17,9 +19,11 @@ public class LightFlame {
     static public void start(Class<?> clazz){     
         BasicConfigurator.configure();   
         LOGGER.info("Light-flame staring at port 8080");
+        
         try {
-            Runnable server = new WebServer(new InetSocketAddress(8080))
-                .createHandlers(clazz);
+            HttpBeanFactory.create(clazz);
+            ConfigBeanFactory.create(clazz);
+            Runnable server = new WebServer(new InetSocketAddress(8080));
             while (true) {
                 server.run();
                 Thread.sleep(5);

@@ -4,21 +4,21 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Beans
  */
 public class Bean<E>{
 
-    private UUID key;
-    private Object instance;
-    private Class<?> clazz;
+    private E instance;
+    private Class<E> clazz;
     private Map<String, Method> methodMap = new HashMap<>();
 
-    public Bean(Class<?> clazz) throws Exception {
-        Constructor<?> ctor = clazz.getConstructor();
-        this.instance = ctor.newInstance(new Object[] { });
+    @SuppressWarnings("unchecked")
+    public Bean(Class<E> clazz) throws Exception {
+        Constructor<E> ctor = clazz.getConstructor();
+        E[] ts = (E[]) new Object[0];
+        this.instance = ctor.newInstance(ts);
         this.clazz = clazz;
     }
 
@@ -32,7 +32,7 @@ public class Bean<E>{
     /**
      * @return the instance
      */
-    public Object getInstance() {
+    public E getInstance() {
         return instance;
     }
 
@@ -43,16 +43,5 @@ public class Bean<E>{
 
     public Method getMethod(String key) {
         return methodMap.get(key);
-    }
-
-    UUID getKey() {
-        return key;
-    }
-
-    /**
-     * @param key the key to set
-     */
-    void setKey(UUID key) {
-        this.key = key;
     }
 }

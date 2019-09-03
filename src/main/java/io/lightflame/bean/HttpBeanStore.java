@@ -1,11 +1,8 @@
 package io.lightflame.bean;
 
-import java.net.http.HttpRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.lightflame.annotations.Endpoint;
-import io.lightflame.annotations.Handler;
 import io.lightflame.functions.HttpFunction;
 import io.lightflame.http.HTTPRequest;
 

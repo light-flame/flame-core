@@ -34,7 +34,7 @@ public class SimpleHelloWorldTest {
         session.readData();
         String s = new String(session.writeBody());
         handlers = new HTTPHandlers();
-        handlers.createHandlers(SimpleHelloWorldTest.class);
+        // handlers.createHandlers(SimpleHelloWorldTest.class);
     }
 
     @Test

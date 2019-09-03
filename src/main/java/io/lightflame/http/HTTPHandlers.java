@@ -9,8 +9,7 @@ import io.lightflame.functions.HttpFunction;
 public class HTTPHandlers {
 
     public HTTPResponse getHandle(HTTPSession session, HTTPRequest request){
-        String location = request.getLocation();
-        HttpFunction function = HttpBeanStore.getFunction(location);
+        HttpFunction function = new HttpBeanStore().getFunctionByRequest(request);
         if (function == null) {
             function = handler404();
         }

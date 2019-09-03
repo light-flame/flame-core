@@ -1,7 +1,7 @@
 package io.lightflame.http;
 
-import io.lightflame.bean.HttpBeanStore;
-import io.lightflame.functions.HttpFunction;
+import io.lightflame.bean.DefaultHttpStore;
+import io.lightflame.functions.DefaultHttpFunction;
 
 /**
  * HTTPHandlers
@@ -9,7 +9,7 @@ import io.lightflame.functions.HttpFunction;
 public class HTTPHandlers {
 
     public HTTPResponse getHandle(HTTPSession session, HTTPRequest request){
-        HttpFunction function = new HttpBeanStore().getFunctionByRequest(request);
+        DefaultHttpFunction function = new DefaultHttpStore().getFunctionByRequest(request);
         if (function == null) {
             function = handler404();
         }
@@ -17,7 +17,7 @@ public class HTTPHandlers {
     }
 
 
-    HttpFunction handler404() {
+    DefaultHttpFunction handler404() {
         return (session, request) -> {
             return new HTTPResponse()
                 .setContent("nothing here... =(".getBytes())

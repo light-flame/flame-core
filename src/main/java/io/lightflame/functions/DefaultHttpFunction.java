@@ -9,7 +9,7 @@ import io.lightflame.http.HTTPSession;
 /**
  * HttpFunction
  */
-public interface HttpFunction extends BiFunction<HTTPSession, HTTPRequest, HTTPResponse>, BeanFunction{
+public interface DefaultHttpFunction extends BiFunction<HTTPSession, HTTPRequest, HTTPResponse>, BeanFunction{
 
     
 }

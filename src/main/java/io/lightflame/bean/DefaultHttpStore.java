@@ -3,27 +3,27 @@ package io.lightflame.bean;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.lightflame.functions.HttpFunction;
+import io.lightflame.functions.DefaultHttpFunction;
 import io.lightflame.http.HTTPRequest;
 
 
 /**
  * HttpBeanStore
  */
-public class HttpBeanStore {
+public class DefaultHttpStore {
 
-    static private Map<String, HttpFunction> functionMap = new HashMap<>();
+    static private Map<String, DefaultHttpFunction> functionMap = new HashMap<>();
 
     private String prefix = "";
 
-    public HttpBeanStore() {
+    public DefaultHttpStore() {
     }
 
-    public HttpBeanStore(String prefix) {
+    public DefaultHttpStore(String prefix) {
         this.prefix = prefix;
     }
 
-    public HttpFunction getFunctionByRequest(HTTPRequest request){
+    public DefaultHttpFunction getFunctionByRequest(HTTPRequest request){
         String key = String.format("%s|%s", 
             request.getMethod().getHttpMethod(), 
             request.getLocation()
@@ -31,12 +31,12 @@ public class HttpBeanStore {
         return functionMap.get(key);
     }
 
-    public void httpGET(String url, HttpFunction function){
+    public void httpGET(String url, DefaultHttpFunction function){
         functionMap.put(String.format("GET|%s%s", prefix,url), function);
     }
 
 
-    public void httpPOST(String url, HttpFunction function){
+    public void httpPOST(String url, DefaultHttpFunction function){
         functionMap.put(String.format("POST|%s%s", prefix,url), function);
     }
     

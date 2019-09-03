@@ -1,32 +1,29 @@
 package io.lightflame.http;
 
-import java.lang.reflect.Method;
-import io.lightflame.bean.Bean;
 import io.lightflame.bean.HttpBeanStore;
+import io.lightflame.functions.HttpFunction;
 
 /**
  * HTTPHandlers
  */
 public class HTTPHandlers {
 
-    public HTTPResponse getHandle(HTTPSession session, HTTPRequest request) throws Exception{
+    public HTTPResponse getHandle(HTTPSession session, HTTPRequest request){
         String location = request.getLocation();
-        Bean<?> bean = HttpBeanStore.getBeanByURL(location);
-        if (bean == null) {
-            bean = HttpBeanStore.getBean(HTTPHandlers.class);
-            location = "404";
+        HttpFunction function = HttpBeanStore.getFunction(location);
+        if (function == null) {
+            function = handler404();
         }
-        Method m =bean.getMethod(location);
-        Object rv = m.invoke(bean.getInstance(), session, request);  
-        return (HTTPResponse)rv; 
+        return function.apply(session, request);
     }
 
 
-
-    public HTTPResponse handler404(HTTPSession session, HTTPRequest request) throws InterruptedException{
-        return new HTTPResponse()
-            .setContent("nothing here... =(".getBytes())
-            .setResponseCode(404);
+    HttpFunction handler404() {
+        return (session, request) -> {
+            return new HTTPResponse()
+                .setContent("nothing here... =(".getBytes())
+                .setResponseCode(404);
+        };
     }
 
 }

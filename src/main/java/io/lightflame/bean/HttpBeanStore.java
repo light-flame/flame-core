@@ -1,35 +1,58 @@
 package io.lightflame.bean;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.lightflame.functions.HttpFunction;
+
 
 /**
  * HttpBeanStore
  */
 public class HttpBeanStore {
 
-    // url - clazz
-    static private Map<String,Class<?>> mapUrlClazz = new HashMap<>();
-
-    static public Bean<?> getBean(Class<?> clazz){
-        return BeanStore.getBean(clazz);
+    static public HttpFunction getFunction(String url){
+        return HttpFunctionStore.getFunctionByUrl(url);
     }
 
-    static public Bean<?> getBeanByURL(String url){
-        Class<?> clazz =  mapUrlClazz.get(url);
-        return getBean(clazz);
+    public HttpFunctionStore addHttpBean(Object e){
+        Bean<?> bean = new Bean<>(e);
+        return new HttpFunctionStore(bean);
     }
 
-    static public void addHttpBean(Bean<?> bean){
-        BeanStore.addBean(bean);
+    static public class HttpFunctionStore{
+
+        static private Map<String, Bean<?>> beanMap = new HashMap<>();
+        private Bean<?> bean;
+
+        HttpFunctionStore(Bean<?> bean) {
+            this.bean = bean;
+        }
+
+        /**
+         * @return the beanMap
+         */
+        static HttpFunction getFunctionByUrl(String url) {
+            Bean<?> bean =  beanMap.get(url);
+            if (bean == null){
+                return null;
+            }
+            return (HttpFunction)bean.getFunction();
+        }
+
+        public HttpFunctionStore httpGET(String url,HttpFunction func){
+            bean.setFunction(func);
+            beanMap.put(url, bean);
+            return this;
+        }
+
     }
 
-    static public void addBeanMethod(Class<?> clazz, String url, Method method){
-        Bean<?> bean = getBean(clazz);
-        bean.addMethod(url, method);
-        mapUrlClazz.put(url, clazz);
-    }
+    // static public void addBeanMethod(Class<?> clazz, String url, Method method){
+    //     Bean<?> bean = getBean(clazz);
+    //     bean.addMethod(url, method);
+    //     mapUrlClazz.put(url, clazz);
+    // }
 
     
 }

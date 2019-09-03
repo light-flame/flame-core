@@ -1,9 +1,7 @@
 package io.lightflame.bean;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+
+import io.lightflame.functions.BeanFunction;
 
 /**
  * Beans
@@ -11,37 +9,28 @@ import java.util.Map;
 public class Bean<E>{
 
     private E instance;
-    private Class<E> clazz;
-    private Map<String, Method> methodMap = new HashMap<>();
+    private BeanFunction function;
 
-    @SuppressWarnings("unchecked")
-    public Bean(Class<E> clazz) throws Exception {
-        Constructor<E> ctor = clazz.getConstructor();
-        E[] ts = (E[]) new Object[0];
-        this.instance = ctor.newInstance(ts);
-        this.clazz = clazz;
+    public Bean(E instance) {
+        this.instance = instance;
     }
 
-    /**
-     * @return the clazz
-     */
-    Class<?> getClazz() {
-        return clazz;
-    }
-
-    /**
-     * @return the instance
-     */
     public E getInstance() {
         return instance;
     }
 
-
-    void addMethod(String key, Method m){
-        methodMap.put(key, m);
+    /**
+     * @param function the function to set
+     */
+    public void setFunction(BeanFunction function) {
+        this.function = function;
     }
 
-    public Method getMethod(String key) {
-        return methodMap.get(key);
+    /**
+     * @return the function
+     */
+    public BeanFunction getFunction() {
+        return function;
     }
+
 }

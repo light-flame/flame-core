@@ -44,7 +44,7 @@ public class WebServer implements Runnable {
      * @param session the entire http session
      * @return the handled request
      */
-    protected HTTPResponse handle(HTTPSession session, HTTPRequest request) throws Exception {
+    protected HTTPResponse handle(HTTPSession session, HTTPRequest request) {
         return httpHandlers.getHandle(session, request);
     }
 

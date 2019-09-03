@@ -11,48 +11,17 @@ import io.lightflame.functions.HttpFunction;
  */
 public class HttpBeanStore {
 
+    static private Map<String, HttpFunction> functionMap = new HashMap<>();
+
     static public HttpFunction getFunction(String url){
-        return HttpFunctionStore.getFunctionByUrl(url);
+        return functionMap.get(url);
     }
 
-    public HttpFunctionStore addHttpBean(Object e){
-        Bean<?> bean = new Bean<>(e);
-        return new HttpFunctionStore(bean);
+    public void addHttpFunction(String url, HttpFunction function){
+        functionMap.put(url, function);
     }
 
-    static public class HttpFunctionStore{
 
-        static private Map<String, Bean<?>> beanMap = new HashMap<>();
-        private Bean<?> bean;
-
-        HttpFunctionStore(Bean<?> bean) {
-            this.bean = bean;
-        }
-
-        /**
-         * @return the beanMap
-         */
-        static HttpFunction getFunctionByUrl(String url) {
-            Bean<?> bean =  beanMap.get(url);
-            if (bean == null){
-                return null;
-            }
-            return (HttpFunction)bean.getFunction();
-        }
-
-        public HttpFunctionStore httpGET(String url,HttpFunction func){
-            bean.setFunction(func);
-            beanMap.put(url, bean);
-            return this;
-        }
-
-    }
-
-    // static public void addBeanMethod(Class<?> clazz, String url, Method method){
-    //     Bean<?> bean = getBean(clazz);
-    //     bean.addMethod(url, method);
-    //     mapUrlClazz.put(url, clazz);
-    // }
 
     
 }

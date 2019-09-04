@@ -7,7 +7,7 @@ import io.lightflame.http.HTTPResponse;
 /**
  * HttpOutAdapter
  */
-public interface HttpOutAdapter<E> extends BeanFunction, Function<E, HTTPResponse>{
+public interface HttpOutAdapterFunction<E> extends BeanFunction, Function<E, HTTPResponse>{
 
     
 }

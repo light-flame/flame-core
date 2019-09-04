@@ -19,6 +19,7 @@ public class HTTPSession {
     private CharsetEncoder encoder = charset.newEncoder();
     private final ByteBuffer buffer = ByteBuffer.allocate(2048);
     private final StringBuilder rl = new StringBuilder();
+    private HTTPRequest request;
     private int mark = 0;
 
     @Override
@@ -36,6 +37,20 @@ public class HTTPSession {
 
     public HTTPSession() {
         channel = null;
+    }
+
+    /**
+     * @param request the request to set
+     */
+    public void setRequest(HTTPRequest request) {
+        this.request = request;
+    }
+
+    /**
+     * @return the request
+     */
+    public HTTPRequest getRequest() {
+        return request;
     }
 
 

@@ -44,8 +44,8 @@ public class WebServer implements Runnable {
      * @param session the entire http session
      * @return the handled request
      */
-    protected HTTPResponse handle(HTTPSession session, HTTPRequest request) {
-        return httpHandlers.getHandle(session, request);
+    protected HTTPResponse handle(HTTPSession session) {
+        return httpHandlers.getHandle(session);
     }
 
 
@@ -100,8 +100,8 @@ public class WebServer implements Runnable {
                             while ((line = session.readLine()) != null) {
                                 // check if we have got everything
                                 if (line.isEmpty()) {
-                                    HTTPRequest request = new HTTPRequest(session.readLines().toString());
-                                    session.sendResponse(handle(session, request));
+                                    session.setRequest(new HTTPRequest(session.readLines().toString()));
+                                    session.sendResponse(handle(session));
                                     session.close();
                                 }
                             }

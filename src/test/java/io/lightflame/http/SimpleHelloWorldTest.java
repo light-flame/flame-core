@@ -37,16 +37,16 @@ public class SimpleHelloWorldTest {
         // handlers.createHandlers(SimpleHelloWorldTest.class);
     }
 
-    @Test
-    public void getUser()throws Exception{
-        HTTPRequest request = new HTTPRequest(HTTPMethod.GET,"/rest/user/get",null); 
-        HTTPResponse resp =  handlers.getHandle(session, request);
+    // @Test
+    // public void getUser()throws Exception{
+    //     HTTPRequest request = new HTTPRequest(HTTPMethod.GET,"/rest/user/get",null); 
+    //     HTTPResponse resp =  handlers.getHandle(session, request);
 
-        UserDTO userDTO =  gson.fromJson(new String(resp.getContent()), UserDTO.class);
+    //     UserDTO userDTO =  gson.fromJson(new String(resp.getContent()), UserDTO.class);
 
-        assertTrue(userDTO.getName().equals("Daniel"));
-        assertTrue(userDTO.getAge() == 34);
-    }
+    //     assertTrue(userDTO.getName().equals("Daniel"));
+    //     assertTrue(userDTO.getAge() == 34);
+    // }
 
     // @Test
     // public void testBuffer(){

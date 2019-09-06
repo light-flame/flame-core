@@ -16,11 +16,11 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  */
 public class DefaultJsonFunction {
 
-    static public <I,O> Function<FullHttpRequest,FullHttpResponse> jsonProducerConsumer(
-        Class<I> clazzI, 
-        Function<I,O> func,
-        Class<O> clazzO,
-        HttpResponseStatus status
+    public <I,O> Function<FullHttpRequest,FullHttpResponse> jsonProducerConsumer(
+            Class<I> clazzI, 
+            Function<I,O> func,
+            Class<O> clazzO,
+            HttpResponseStatus status
         ){
         HttpInAdapterFunction<I> jsonUnm =  new HttpInAdapter().jsonUnmarshall(clazzI);
         HttpOutAdapterFunction<O> jsonMarsh = new HttpOutAdapter().jsonMarshall(clazzO);

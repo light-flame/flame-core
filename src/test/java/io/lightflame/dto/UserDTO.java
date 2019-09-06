@@ -1,4 +1,4 @@
-package io.lightflame.handle;
+package io.lightflame.dto;
 
 import java.io.Serializable;
 

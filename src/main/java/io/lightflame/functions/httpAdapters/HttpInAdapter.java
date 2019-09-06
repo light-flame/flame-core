@@ -1,4 +1,4 @@
-package io.lightflame.httpAdapters;
+package io.lightflame.functions.httpAdapters;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

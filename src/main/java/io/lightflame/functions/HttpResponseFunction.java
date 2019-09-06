@@ -5,9 +5,9 @@ import java.util.function.Function;
 import io.netty.handler.codec.http.FullHttpResponse;
 
 /**
- * HttpOutAdapter
+ * HttpResponseFunction
  */
-public interface HttpOutAdapterFunction<R> extends BeanFunction, Function<R, FullHttpResponse>{
+public interface HttpResponseFunction extends BeanFunction, Function<FullHttpResponse, FullHttpResponse> {
 
     
 }

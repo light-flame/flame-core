@@ -18,23 +18,17 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class AdaptersTest {
 
+    Gson g = new Gson();
+
     @Test
     public void adapter1Test(){
         UserDTO usrDto = new UserDTO("name", 13);
         HttpInAdapterFunction<UserDTO> f1 =  new HttpInAdapter().jsonUnmarshall(UserDTO.class);
-
-        FullHttpRequest req = new DefaultFullHttpRequest(
-            HttpVersion.HTTP_1_1,
-            HttpMethod.POST,
-            "/"
-        );
+        FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,HttpMethod.POST,"/");
         req.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
-        Gson g = new Gson();
-        
-        String bArray = g.toJson(usrDto);
-        req.content().writeBytes(bArray.getBytes());
+        req.content().writeBytes(g.toJson(usrDto).getBytes());
 
         UserDTO u = f1.apply(req);
-        System.out.println(u.getAge());
+        assert(u.equals(usrDto));
     }
 }

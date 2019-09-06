@@ -5,9 +5,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
@@ -41,8 +41,8 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject>{
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, HttpObject msg)throws Exception {
-        if (msg instanceof HttpRequest) {
-            HttpRequest req = (HttpRequest) msg;
+        if (msg instanceof FullHttpRequest) {
+            FullHttpRequest req = (FullHttpRequest) msg;
 
             boolean keepAlive = HttpUtil.isKeepAlive(req);
             

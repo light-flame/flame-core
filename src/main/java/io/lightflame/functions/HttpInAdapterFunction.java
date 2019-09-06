@@ -2,12 +2,12 @@ package io.lightflame.functions;
 
 import java.util.function.Function;
 
-import io.lightflame.http.HTTPSession;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpInAdapter
  */
-public interface HttpInAdapterFunction<E> extends Function<HTTPSession, E> {
+public interface HttpInAdapterFunction<E> extends Function<FullHttpRequest, E> {
 
     
 }

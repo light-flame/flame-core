@@ -2,13 +2,14 @@ package io.lightflame.functions;
 
 import java.util.function.Function;
 
-import io.lightflame.http.HTTPResponse;
-import io.lightflame.http.HTTPSession;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+
 
 /**
  * HttpFunction
  */
-public interface DefaultHttpFunction extends Function<HTTPSession, HTTPResponse>, BeanFunction{
+public interface DefaultHttpFunction extends Function<FullHttpRequest, FullHttpResponse>, BeanFunction {
 
     
 }

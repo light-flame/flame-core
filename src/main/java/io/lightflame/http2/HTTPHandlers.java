@@ -2,12 +2,12 @@ package io.lightflame.http2;
 
 import java.util.function.Function;
 
-import io.lightflame.bean.NettyHttpStore;
-import io.lightflame.functions.NettyHttpFunction;
+import io.lightflame.bean.DefaultHttpStore;
+import io.lightflame.functions.DefaultHttpFunction;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpRequest;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -19,9 +19,9 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  */
 public class HTTPHandlers {
 
-    public FullHttpResponse getHandle(HttpRequest request){
+    public FullHttpResponse getHandle(FullHttpRequest request){
         
-        Function<HttpRequest, FullHttpResponse> function = new NettyHttpStore()
+        Function<FullHttpRequest, FullHttpResponse> function = new DefaultHttpStore()
             .getFunctionByRequest(request);
         if (function == null) {
             function = handler404();
@@ -30,7 +30,7 @@ public class HTTPHandlers {
     }
 
 
-    NettyHttpFunction handler404() {
+    DefaultHttpFunction handler404() {
         return (req) -> {
             FullHttpResponse response = new DefaultFullHttpResponse(
                 req.protocolVersion(), 

@@ -38,7 +38,7 @@ public class PipelineFactory extends ChannelInitializer<SocketChannel>{
 
         // p.addLast(new HttpDecider());
         p.addLast(new WebSocketFrameHandler());
-        p.addLast(new HttpServerHandler());
+        p.addLast(new FullHttpServerHandler());
         // p.addLast(new HttpDecider());
     }
 }

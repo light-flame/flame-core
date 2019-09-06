@@ -16,6 +16,7 @@
 package io.lightflame.http2;
 
 import io.lightflame.bean.DefaultExceptionStore;
+import io.lightflame.bean.DefaultHttpStore;
 import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -45,7 +46,6 @@ public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private FullHttpRequest request;
     FullHttpResponse response;
-    private HTTPHandlers httpHandlers = new HTTPHandlers();
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -114,7 +114,9 @@ public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
         // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         try {
-            response = httpHandlers.getHandle(request);
+            response = new DefaultHttpStore()
+                .getFunctionByRequest(request)
+                .apply(request);
         }catch(Exception e){
             ExceptionHttpFunction fExc =  new DefaultExceptionStore().getFunction(e);
             response = fExc.apply(e);

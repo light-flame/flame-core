@@ -1,6 +1,7 @@
 package io.lightflame.http2;
 
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -30,15 +31,24 @@ public class PipelineFactory extends ChannelInitializer<SocketChannel>{
         // p.addLast(new HttpServerCodec());
 
 
-
         p.addLast(new HttpServerCodec());
         p.addLast(new HttpObjectAggregator(65536));
         p.addLast(new WebSocketServerCompressionHandler());
         p.addLast(new WebSocketServerProtocolHandler("/ws", null, true));
 
-        // p.addLast(new HttpDecider());
         p.addLast(new WebSocketFrameHandler());
         p.addLast(new FullHttpServerHandler());
-        // p.addLast(new HttpDecider());
+    }
+
+    static public ChannelHandler[] createChannels(){
+        ChannelHandler[] chs = {
+            new HttpServerCodec(),
+            new HttpObjectAggregator(65536),
+            new WebSocketServerCompressionHandler(),
+            new WebSocketServerProtocolHandler("/ws", null, true),
+            new WebSocketFrameHandler(),
+            new FullHttpServerHandler()
+        };
+        return chs;
     }
 }

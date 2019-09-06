@@ -1,24 +1,18 @@
 package io.lightflame.http2;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpUtil;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 
 
 /**
@@ -50,15 +44,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject>{
         if (msg instanceof HttpRequest) {
             HttpRequest req = (HttpRequest) msg;
 
-            // HttpHeaders headers = req.headers();
-
             boolean keepAlive = HttpUtil.isKeepAlive(req);
             
             FullHttpResponse response = httpHandlers.getHandle(req);
-            
-            response.headers()
-                    .set(CONTENT_TYPE, TEXT_PLAIN)
-                    .setInt(CONTENT_LENGTH, response.content().readableBytes());
 
             if (keepAlive) {
                 if (!req.protocolVersion().isKeepAliveDefault()) {

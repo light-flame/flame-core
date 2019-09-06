@@ -5,9 +5,11 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
@@ -45,8 +47,13 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject>{
             FullHttpRequest req = (FullHttpRequest) msg;
 
             boolean keepAlive = HttpUtil.isKeepAlive(req);
-            
-            FullHttpResponse response = httpHandlers.getHandle(req);
+
+            FullHttpResponse response = new DefaultFullHttpResponse(null, null);
+            try {
+                response = httpHandlers.getHandle(req);
+            }catch(Exception e){
+                response.setStatus(HttpResponseStatus.BAD_GATEWAY);
+            }
 
             if (keepAlive) {
                 if (!req.protocolVersion().isKeepAliveDefault()) {

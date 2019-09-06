@@ -2,30 +2,40 @@ package io.lightflame.bean;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
+
+
+import io.lightflame.functions.ExceptionHttpFunction;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.util.CharsetUtil;
+
+import static io.netty.handler.codec.http.HttpResponseStatus.*;
+import static io.netty.handler.codec.http.HttpVersion.*;
 
 /**
  * DefaultExceptionStore
  */
 public class DefaultExceptionStore {
-    static private Map<Exception, Function<?,?>> functionMap = new HashMap<>();
+    static private Map<Exception, ExceptionHttpFunction> functionMap = new HashMap<>();
 
-    public Function<?, ?> runFunctionByException(Exception e){
-        Function<?,?> f = functionMap.get(e);
+    public ExceptionHttpFunction getFunction(Exception e){
+        ExceptionHttpFunction f = functionMap.get(e);
         if (f == null){
             f = defaultFunction();
         }
-        return functionMap.get(e);
+        return f;
     }
 
-    public void add(Exception e, Function<?,?> function){
+    public void add(Exception e, ExceptionHttpFunction function){
         functionMap.put(e, function);
     }
 
-    private Function<Object, Optional<Void>> defaultFunction(){
-        return (req) -> {
-            return null;
+    private ExceptionHttpFunction defaultFunction(){
+        return (e) -> {
+            e.printStackTrace();
+            return  new DefaultFullHttpResponse(
+                HTTP_1_1, BAD_GATEWAY,
+                Unpooled.copiedBuffer("", CharsetUtil.UTF_8));
         };
     }
     

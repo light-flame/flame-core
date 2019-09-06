@@ -15,6 +15,8 @@
  */
 package io.lightflame.http2;
 
+import io.lightflame.bean.DefaultExceptionStore;
+import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -42,6 +44,7 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private FullHttpRequest request;
+    FullHttpResponse response;
     private HTTPHandlers httpHandlers = new HTTPHandlers();
 
     @Override
@@ -110,8 +113,18 @@ public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
         // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
 
-        FullHttpResponse response = httpHandlers.getHandle(request);
+        try {
+            response = httpHandlers.getHandle(request);
+        }catch(Exception e){
+            ExceptionHttpFunction fExc =  new DefaultExceptionStore().getFunction(e);
+            response = fExc.apply(e);
+        }finally{
+            writeOnEnd(ctx, keepAlive);
+        }
+        return keepAlive;
+    }
 
+    private void writeOnEnd(ChannelHandlerContext ctx, boolean keepAlive){
         if (keepAlive) {
             // Add 'Content-Length' header only for a keep-alive connection.
             response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
@@ -138,8 +151,6 @@ public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
         // Write the response.
         ctx.write(response);
-
-        return keepAlive;
     }
 
     private static void send100Continue(ChannelHandlerContext ctx) {

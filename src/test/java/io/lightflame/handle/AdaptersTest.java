@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import org.junit.Test;
 
 import io.lightflame.dto.UserDTO;
-import io.lightflame.functions.HttpInAdapterFunction;
 import io.lightflame.functions.httpAdapters.HttpInAdapter;
 import io.lightflame.http2.PipelineFactory;
 import io.netty.buffer.ByteBufUtil;
@@ -31,7 +30,7 @@ public class AdaptersTest {
     @Test
     public void adapter1Test(){
         UserDTO usrDto = new UserDTO("name", 13);
-        HttpInAdapterFunction<UserDTO> f1 =  new HttpInAdapter().jsonUnmarshall(UserDTO.class);
+        Function<FullHttpRequest, UserDTO> f1 =  new HttpInAdapter().jsonUnmarshall(UserDTO.class);
         FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,HttpMethod.POST,"/");
         req.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json");
         req.content().writeBytes(g.toJson(usrDto).getBytes());

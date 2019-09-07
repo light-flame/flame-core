@@ -1,9 +1,9 @@
 package io.lightflame.functions.httpAdapters;
 
+import java.util.function.Function;
+
 import com.google.gson.Gson;
 
-import io.lightflame.functions.HttpOutAdapterFunction;
-import io.lightflame.functions.HttpResponseFunction;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -16,7 +16,7 @@ import io.netty.util.CharsetUtil;
  */
 public class HttpOutAdapter {
 
-    public <E> HttpOutAdapterFunction<E> jsonMarshall(Class<E> clazz){
+    public <OUT> Function<OUT, FullHttpResponse> jsonMarshall(Class<OUT> clazz){
         Gson gson = new Gson();
         return (obj) -> {
             String objStr = gson.toJson(obj);
@@ -27,7 +27,7 @@ public class HttpOutAdapter {
         };
     }
 
-    public HttpResponseFunction status(HttpResponseStatus status){
+    public Function<FullHttpResponse, FullHttpResponse> status(HttpResponseStatus status){
         return (response) -> {
             response.setStatus(status);
             return response;

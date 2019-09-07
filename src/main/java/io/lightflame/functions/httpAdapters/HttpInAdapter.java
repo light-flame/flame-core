@@ -1,11 +1,10 @@
 package io.lightflame.functions.httpAdapters;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.util.function.Function;
 
 import com.google.gson.Gson;
 
-import io.lightflame.functions.HttpInAdapterFunction;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.CharsetUtil;
@@ -14,21 +13,32 @@ import io.netty.util.CharsetUtil;
  * JsonUnmashallApaptor
  */
 public class HttpInAdapter {
+
+    private <IN> Function<FullHttpRequest,Function<FullHttpRequest, IN>> checkContentType(Function<FullHttpRequest, IN> jsonUnm, Function<FullHttpRequest, IN> textUnm){
+        return (req) -> {
+            HttpHeaders headers = req.headers();
+            if (headers.get(HttpHeaderNames.CONTENT_TYPE) == "application/json"){
+                return jsonUnm;
+            }
+            return textUnm;
+        };
+    }
+
+    public <IN> Function<FullHttpRequest, IN> unmashallGatewayOut(Function<FullHttpRequest, IN> jsonUnm, Function<FullHttpRequest, IN> formUnm){
+        return (req) -> {
+            Function<FullHttpRequest, IN> f = checkContentType(jsonUnm, formUnm).apply(req);
+            IN obj = f.apply(req);
+            return obj;
+        };
+    }
     
-    public <E> HttpInAdapterFunction<E> jsonUnmarshall(Class<E> clazz){
+    
+    public <IN> Function<FullHttpRequest, IN> jsonUnmarshall(Class<IN> clazz){
         Gson gson = new Gson();
         return (req) -> {
-            try {
-                HttpHeaders headers = req.headers();
-                if (headers.get(HttpHeaderNames.CONTENT_TYPE) != "application/json"){
-                    throw new IOException("content type not accepted");
-                }
-                String jsonStr = req.content().toString(CharsetUtil.UTF_8);
-                E obj = gson.fromJson(jsonStr, clazz);
-                return obj;
-            }catch(IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            String jsonStr = req.content().toString(CharsetUtil.UTF_8);
+            IN obj = gson.fromJson(jsonStr, clazz);
+            return obj;
         };
     }
     

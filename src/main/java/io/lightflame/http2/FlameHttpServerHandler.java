@@ -15,8 +15,8 @@
  */
 package io.lightflame.http2;
 
-import io.lightflame.bean.DefaultExceptionStore;
-import io.lightflame.bean.DefaultHttpStore;
+import io.lightflame.bean.FlameExceptionStore;
+import io.lightflame.bean.FlameHttpStore;
 import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -42,7 +42,7 @@ import java.util.Set;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
-public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
+public class FlameHttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private FullHttpRequest request;
     FullHttpResponse response;
@@ -114,11 +114,11 @@ public class FullHttpServerHandler extends SimpleChannelInboundHandler<Object> {
         // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         try {
-            response = new DefaultHttpStore()
+            response = new FlameHttpStore()
                 .getFunctionByRequest(request)
                 .apply(request);
         }catch(Exception e){
-            ExceptionHttpFunction fExc =  new DefaultExceptionStore().getFunction(e);
+            ExceptionHttpFunction fExc =  new FlameExceptionStore().getFunction(e);
             response = fExc.apply(e);
         }finally{
             writeOnEnd(ctx, keepAlive);

@@ -37,17 +37,13 @@ public class PipelineFactory extends ChannelInitializer<SocketChannel>{
         p.addLast(new WebSocketServerProtocolHandler("/ws", null, true));
 
         p.addLast(new WebSocketFrameHandler());
-        p.addLast(new FullHttpServerHandler());
+        p.addLast(new FlameHttpServerHandler());
     }
 
-    static public ChannelHandler[] createChannels(){
+    static public ChannelHandler[] createHttpChannels(){
         ChannelHandler[] chs = {
             new HttpServerCodec(),
-            new HttpObjectAggregator(65536),
-            new WebSocketServerCompressionHandler(),
-            new WebSocketServerProtocolHandler("/ws", null, true),
-            new WebSocketFrameHandler(),
-            new FullHttpServerHandler()
+            new FlameHttpServerHandler()
         };
         return chs;
     }

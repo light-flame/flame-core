@@ -18,16 +18,16 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 /**
  * HttpBeanStore
  */
-public class DefaultHttpStore {
+public class FlameHttpStore {
 
     static private Map<String, Function<FullHttpRequest, FullHttpResponse>> functionMap = new HashMap<>();
 
     private String prefix = "";
 
-    public DefaultHttpStore() {
+    public FlameHttpStore() {
     }
 
-    public DefaultHttpStore(String prefix) {
+    public FlameHttpStore(String prefix) {
         this.prefix = prefix;
     }
 

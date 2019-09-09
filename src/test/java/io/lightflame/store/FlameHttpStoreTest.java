@@ -16,7 +16,7 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/to/url", "GET"), 30);
+        assertEquals(path.getScore("/path/to/url", "GET"), 1);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
         
     }
@@ -28,18 +28,18 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/to/url", "GET"), 30);
-        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 35);
+        assertEquals(path.getScore("/path/to/url", "GET"), 4);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 5);
     }
 
     @Test
     public void testUrlsConditionsDynamic(){
 
-        HttpUrlScore path = new HttpUrlScore("/path/to/{url}", "GET");
+        HttpUrlScore path = new HttpUrlScore("/path/to/{url}", "GET"); 
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/to/url", "GET"), 30);
+        assertEquals(path.getScore("/path/to/url", "GET"), 1);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
     }
 
@@ -48,10 +48,10 @@ public class FlameHttpStoreTest {
 
         HttpUrlScore path = new HttpUrlScore("/*", "GET");
 
-        assertEquals(path.getScore("/", "GET"), 10);
-        assertEquals(path.getScore("/path", "GET"), 20);
-        assertEquals(path.getScore("/path/to/url", "GET"), 40);
-        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 50);
+        assertEquals(path.getScore("/", "GET"), 1);
+        assertEquals(path.getScore("/path", "GET"), 2);
+        assertEquals(path.getScore("/path/to/url", "GET"), 4);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 5);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/my/url", "GET"), 20);
+        assertEquals(path.getScore("/path/my/url", "GET"), 1);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
     }
 }

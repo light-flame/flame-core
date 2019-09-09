@@ -11,6 +11,7 @@ public class HttpUrlScore {
     private final static String DYNAMIC = "DYNAMIC";
 
     private Boolean isWideCard = false;
+    private Boolean hasDynamic = false;
     private String method;
     private List<String> segments = new ArrayList<>();
 
@@ -22,6 +23,7 @@ public class HttpUrlScore {
                 break;
             }
             if (segment.contains("{")){
+                this.hasDynamic = true;
                 this.segments.add(DYNAMIC);
                 continue;
             }
@@ -44,24 +46,53 @@ public class HttpUrlScore {
     
 
     int getScore(String url, String method){
-        int score = 0;
-        url = url.split("\\?",0)[0];
+        if (method != this.method){
+            return 0;
+        }
         List<String> incomeSegments = constructSegment(url);
-        if (incomeSegments.size() > segments.size()){
+
+        if (this.isWideCard){
+            return wideCardScore(incomeSegments);
+        }
+        return normalScore(incomeSegments);
+
+    }
+
+    private int normalScore(List<String> incomeSegments){
+        if (incomeSegments.size() != segments.size()){
             return 0;
         }
-        if (incomeSegments.size() != this.segments.size() && !this.isWideCard){
-            return 0;
-        }
-        for (int i=0;i< incomeSegments.size();i++){
+        for (int i=0;i < incomeSegments.size();i++){
             String incomeSegm = incomeSegments.get(i);
             String conditionSegm = this.segments.get(i);
-            if (incomeSegm.equals(conditionSegm)){
-                score += 10;
-            }
             if (conditionSegm.equals(DYNAMIC)){
-                score += 5;
+                continue;
             }
+            if (!incomeSegm.equals(conditionSegm)){
+                return 0;
+            }
+
+        }
+        return 1;
+    }
+
+    private int wideCardScore(List<String> incomeSegments){
+        int score = 1;
+        if (incomeSegments.size() < segments.size()){
+            return 0;
+        }
+        for (int i=0;i < incomeSegments.size();i++){
+            String incomeSegm = incomeSegments.get(i);
+
+            if (this.segments.size() <= i){
+                score++;
+                continue;
+            }
+            String conditionSegm = this.segments.get(i);
+
+            if (conditionSegm.equals(DYNAMIC))continue;
+            if (!incomeSegm.equals(conditionSegm))return 0;
+            score++;
         }
         return score;
     }

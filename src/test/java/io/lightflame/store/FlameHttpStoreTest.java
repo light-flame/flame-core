@@ -1,5 +1,7 @@
 package io.lightflame.store;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 /**
@@ -12,24 +14,54 @@ public class FlameHttpStoreTest {
 
         HttpUrlScore path = new HttpUrlScore("/path/to/url", "GET");
 
-        path.getScore("/*", "GET");
-        path.getScore("/path/*", "GET");
-        path.getScore("/path/to/{url}", "GET");
-        path.getScore("/path/to/url", "GET");
-        path.getScore("/path/to/url/{bigger}", "GET");
-        path.getScore("/path/to/url/bigger", "GET");
+        assertEquals(path.getScore("/", "GET"), 0);
+        assertEquals(path.getScore("/path", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
         
     }
 
+    @Test
+    public void testUrlsConditionsWide(){
 
+        HttpUrlScore path = new HttpUrlScore("/path/to/url/*", "GET");
 
+        assertEquals(path.getScore("/", "GET"), 0);
+        assertEquals(path.getScore("/path", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
+    }
 
-    // public Function<FullHttpRequest,FullHttpResponse> p1() {
-    //     return (request) -> {
-    //         String name = request.content().toString(CharsetUtil.UTF_8);
-    //         String greeting = String.format("hello %s", name);
-    //         return new DefaultFullHttpResponse(
-    //             HTTP_1_1,OK, Unpooled.copiedBuffer(greeting, CharsetUtil.UTF_8));
-    //     };
-    // }
+    @Test
+    public void testUrlsConditionsDynamic(){
+
+        HttpUrlScore path = new HttpUrlScore("/path/to/{url}", "GET");
+
+        assertEquals(path.getScore("/", "GET"), 0);
+        assertEquals(path.getScore("/path", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
+    }
+
+    @Test
+    public void testUrlsConditionsBigWide(){
+
+        HttpUrlScore path = new HttpUrlScore("/*", "GET");
+
+        assertEquals(path.getScore("/", "GET"), 0);
+        assertEquals(path.getScore("/path", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
+    }
+
+    @Test
+    public void testUrlsConditionsBigDynamic(){
+
+        HttpUrlScore path = new HttpUrlScore("/path/{to}/{url}", "GET");
+
+        assertEquals(path.getScore("/", "GET"), 0);
+        assertEquals(path.getScore("/path", "GET"), 0);
+        assertEquals(path.getScore("/path/my/url", "GET"), 0);
+        assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.lightflame.context.FlameHttpContext;
+import io.lightflame.util.FlameHttpUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -35,17 +36,19 @@ public class FlameHttpStore {
 
     public FlameHttpContext runFunctionByRequest(FullHttpRequest request){
         Function<FlameHttpContext, FlameHttpContext> function = handler404();
+        String rawUri = "";
         int finalScore = 0;
 
         for (Map.Entry<HttpUrlScore,Function<FlameHttpContext, FlameHttpContext>> entry : functionMap.entrySet()){
             int score = entry.getKey().getScore(request.uri(), request.method().name());
             if (score > finalScore){
                 function = entry.getValue();
+                rawUri = entry.getKey().getRawConditionURI();
                 finalScore = score;
             }
         }
 
-        FlameHttpContext ctx = new FlameHttpContext(request);
+        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(rawUri));
         return function.apply(ctx);
     }
 

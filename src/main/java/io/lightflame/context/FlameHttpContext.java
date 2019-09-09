@@ -1,5 +1,6 @@
 package io.lightflame.context;
 
+import io.lightflame.util.FlameHttpUtils;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 
@@ -10,6 +11,7 @@ public class FlameHttpContext implements FlameContext{
 
     private FullHttpRequest req;
     private FullHttpResponse res;
+    private FlameHttpUtils utils;
 
     
 
@@ -30,4 +32,8 @@ public class FlameHttpContext implements FlameContext{
         this.req = req;
     }
     
+    public FlameHttpContext(FullHttpRequest req, FlameHttpUtils utils) {
+        this.utils = utils;
+        this.req = req;
+    }
 }

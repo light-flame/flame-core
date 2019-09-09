@@ -1,17 +1,25 @@
 package io.lightflame.util;
 
-import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpUtils
  */
 public class FlameHttpUtils {
 
-    static public String extractQueryParam(FullHttpRequest request){
+    private String conditionUrl;
+
+    public FlameHttpUtils(String conditionUrl) {
+        this.conditionUrl = conditionUrl;
+    }
+
+    static public String extractQueryParam(String uri, String name){
         return "";
     }
 
-    static public String extractUrlParam(FullHttpRequest request){
+    // uri example: /path/to/my/url
+    static public String extractUrlParam(String uri, String name){
         return "";
     }
+
+
 }

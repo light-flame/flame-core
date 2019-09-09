@@ -13,8 +13,14 @@ public class HttpUrlScore {
     private Boolean isWideCard = false;
     private String method;
     private List<String> segments = new ArrayList<>();
+    private String RawConditionURI;
+
+    public String getRawConditionURI(){
+        return this.RawConditionURI;
+    }
 
     HttpUrlScore(String url, String method){
+        this.RawConditionURI = url;
         this.method = method;
         for (String segment : constructSegment(url)){
             if (segment.equals("*")){

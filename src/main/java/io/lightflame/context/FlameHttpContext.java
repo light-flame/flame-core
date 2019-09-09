@@ -13,12 +13,13 @@ public class FlameHttpContext implements FlameContext{
 
     
 
-    public FullHttpRequest request(){
+    public FullHttpRequest getRequest(){
         return this.req;
     }
 
-    public void setResponse(FullHttpResponse r){
+    public FlameHttpContext setResponse(FullHttpResponse r){
         this.res = r;
+        return this;
     }
 
     public FullHttpResponse getResponse(){

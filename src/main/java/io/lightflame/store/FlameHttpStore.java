@@ -9,6 +9,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -34,26 +35,33 @@ public class FlameHttpStore {
 
     public FlameHttpContext runFunctionByRequest(FullHttpRequest request){
         Function<FlameHttpContext, FlameHttpContext> function = handler404();
-        // for each iterator
+        int finalScore = 0;
+
+        for (Map.Entry<HttpUrlScore,Function<FlameHttpContext, FlameHttpContext>> entry : functionMap.entrySet()){
+            int score = entry.getKey().getScore(request.uri(), request.method().name());
+            if (score > finalScore){
+                function = entry.getValue();
+                finalScore = score;
+            }
+        }
 
         FlameHttpContext ctx = new FlameHttpContext(request);
         return function.apply(ctx);
     }
 
     public void httpGET(String url, Function<FlameHttpContext, FlameHttpContext> function){
-        
-        functionMap.put(new HttpUrlScore(this.prefix + url, "GET"), function);
+        functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.GET.name()), function);
     }
 
 
     public void httpPOST(String url, Function<FlameHttpContext, FlameHttpContext> function){
-        functionMap.put(new HttpUrlScore(this.prefix + url, "GET"), function);
+        functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.POST.name()), function);
     }
 
     private Function<FlameHttpContext, FlameHttpContext> handler404() {
         return (ctx) -> {
             FullHttpResponse response = new DefaultFullHttpResponse(
-                ctx.request().protocolVersion(), 
+                ctx.getRequest().protocolVersion(), 
                 OK,
                 Unpooled.wrappedBuffer("nothing here.. =(".getBytes()));
             response.headers()

@@ -13,7 +13,9 @@ public class FlameHttpContext implements FlameContext{
     private FullHttpResponse res;
     private FlameHttpUtils utils;
 
-    
+    public String getPathParamByName(String name){
+        return utils.extractUrlParam(req.uri(), name);
+    }
 
     public FullHttpRequest getRequest(){
         return this.req;

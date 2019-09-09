@@ -16,12 +16,8 @@ public class HttpUrlScore {
 
     HttpUrlScore(String url, String method){
         this.method = method;
-        url = url.split("\\?",0)[0];
-        for (String segment : url.split("/")){
-            if (segment == ""){
-                continue;
-            }
-            if (segment == "*"){
+        for (String segment : constructSegment(url)){
+            if (segment.equals("*")){
                 this.isWideCard = true;
                 break;
             }
@@ -33,25 +29,37 @@ public class HttpUrlScore {
         }
     }
 
+    private List<String> constructSegment(String url){
+        List<String> segments = new ArrayList<>();
+        url = url.split("\\?",0)[0];
+        for (String segment : url.split("/")){
+            if (segment.equals("")){
+                continue;
+            }
+            segments.add(segment);
+        }
+        return segments;
+    }
+
     
 
     int getScore(String url, String method){
         int score = 0;
         url = url.split("\\?",0)[0];
-        String[] incomeSegments = url.split("/");
-        if (incomeSegments.length > segments.size()){
+        List<String> incomeSegments = constructSegment(url);
+        if (incomeSegments.size() > segments.size()){
             return 0;
         }
-        if (incomeSegments.length != this.segments.size() && !this.isWideCard){
+        if (incomeSegments.size() != this.segments.size() && !this.isWideCard){
             return 0;
         }
-        for (int i=0;i< incomeSegments.length;i++){
-            String incomeSegm = incomeSegments[i];
+        for (int i=0;i< incomeSegments.size();i++){
+            String incomeSegm = incomeSegments.get(i);
             String conditionSegm = this.segments.get(i);
-            if (incomeSegm == conditionSegm){
+            if (incomeSegm.equals(conditionSegm)){
                 score += 10;
             }
-            if (conditionSegm == DYNAMIC){
+            if (conditionSegm.equals(DYNAMIC)){
                 score += 5;
             }
         }

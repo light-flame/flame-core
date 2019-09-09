@@ -15,8 +15,8 @@
  */
 package io.lightflame.http2;
 
-import io.lightflame.bean.FlameExceptionStore;
-import io.lightflame.bean.FlameHttpStore;
+import io.lightflame.store.FlameExceptionStore;
+import io.lightflame.store.FlameHttpStore;
 import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

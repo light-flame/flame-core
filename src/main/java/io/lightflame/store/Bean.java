@@ -1,4 +1,4 @@
-package io.lightflame.bean;
+package io.lightflame.store;
 
 /**
  * Bean

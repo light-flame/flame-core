@@ -1,4 +1,4 @@
-package io.lightflame.bean;
+package io.lightflame.store;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  */
 public class FlameHttpStore {
 
-    static private Map<String, Function<FullHttpRequest, FullHttpResponse>> functionMap = new HashMap<>();
+    static private Map<HttpUrlScore, Function<FullHttpRequest, FullHttpResponse>> functionMap = new HashMap<>();
 
     private String prefix = "";
 
@@ -32,25 +32,20 @@ public class FlameHttpStore {
     }
 
     public Function<FullHttpRequest, FullHttpResponse> getFunctionByRequest(FullHttpRequest request){
-        String key = String.format("%s|%s", 
-            request.method().name(), 
-            request.uri()
-        ); 
-        Function<FullHttpRequest, FullHttpResponse> function = functionMap.get(key);
-        if (function == null) {
-            function = handler404();
-        }
+        Function<FullHttpRequest, FullHttpResponse> function = handler404();
+        // for each iterator
+
         return function;
     }
 
-
     public void httpGET(String url, Function<FullHttpRequest, FullHttpResponse> function){
-        functionMap.put(String.format("GET|%s%s", prefix,url), function);
+        
+        functionMap.put(new HttpUrlScore(this.prefix + url, "GET"), function);
     }
 
 
     public void httpPOST(String url, Function<FullHttpRequest, FullHttpResponse> function){
-        functionMap.put(String.format("POST|%s%s", prefix,url), function);
+        functionMap.put(new HttpUrlScore(this.prefix + url, "GET"), function);
     }
 
     private Function<FullHttpRequest, FullHttpResponse> handler404() {

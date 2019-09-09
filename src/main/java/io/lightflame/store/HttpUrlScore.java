@@ -11,7 +11,6 @@ public class HttpUrlScore {
     private final static String DYNAMIC = "DYNAMIC";
 
     private Boolean isWideCard = false;
-    private Boolean hasDynamic = false;
     private String method;
     private List<String> segments = new ArrayList<>();
 
@@ -23,7 +22,6 @@ public class HttpUrlScore {
                 break;
             }
             if (segment.contains("{")){
-                this.hasDynamic = true;
                 this.segments.add(DYNAMIC);
                 continue;
             }

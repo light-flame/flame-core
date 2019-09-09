@@ -17,6 +17,7 @@ package io.lightflame.http2;
 
 import io.lightflame.store.FlameExceptionStore;
 import io.lightflame.store.FlameHttpStore;
+import io.lightflame.context.FlameHttpContext;
 import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -114,9 +115,8 @@ public class FlameHttpServerHandler extends SimpleChannelInboundHandler<Object> 
         // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         try {
-            response = new FlameHttpStore()
-                .getFunctionByRequest(request)
-                .apply(request);
+            FlameHttpContext flameCtx = new FlameHttpStore().runFunctionByRequest(request);
+            response = flameCtx.getResponse();
         }catch(Exception e){
             ExceptionHttpFunction fExc =  new FlameExceptionStore().getFunction(e);
             response = fExc.apply(e);

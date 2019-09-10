@@ -77,7 +77,7 @@ public class HttpUrlScore {
             }
 
         }
-        return 1;
+        return 100;
     }
 
     private int wideCardScore(List<String> incomeSegments){

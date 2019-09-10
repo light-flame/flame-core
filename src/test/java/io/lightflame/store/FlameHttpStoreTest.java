@@ -39,7 +39,7 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/to/url", "GET"), 1);
+        assertEquals(path.getScore("/path/to/url", "GET"), 100);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
     }
 
@@ -61,7 +61,17 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/my/url", "GET"), 1);
+        assertEquals(path.getScore("/path/my/url", "GET"), 100);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
+    }
+
+    @Test
+    public void test3(){
+        assertEquals(new HttpUrlScore("/api/hello/world/simple", "GET")
+            .getScore("/api/hello/world/simple", "GET"), 100);
+        //
+        assertEquals(new HttpUrlScore("/api/hello/*", "GET")
+            .getScore("/api/hello/world/simple", "GET"), 5);
+        //
     }
 }

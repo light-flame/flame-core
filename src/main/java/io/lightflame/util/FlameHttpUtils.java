@@ -20,7 +20,20 @@ public class FlameHttpUtils {
         }
     }
 
-    public String extractQueryParam(String uri, String name){
+    public String extractQueryParam(String uri, String key){
+        String[] uris = uri.split("\\?",0);
+        if (uris.length != 2){
+            return null;
+        }
+        for (String keyValue : uris[1].split("\\&")){
+            if (!keyValue.contains("=")){
+                continue;
+            }
+            String[] keyValSpl = keyValue.split("=");
+            if (keyValSpl[0].equals(key)){
+                return keyValSpl[1];
+            }
+        }
         return "";
     }
 

@@ -16,7 +16,7 @@ public class FlameHttpStoreTest {
 
         assertEquals(path.getScore("/", "GET"), 0);
         assertEquals(path.getScore("/path", "GET"), 0);
-        assertEquals(path.getScore("/path/to/url", "GET"), 1);
+        assertEquals(path.getScore("/path/to/url", "GET"), 100);
         assertEquals(path.getScore("/path/to/url/bigger", "GET"), 0);
         
     }

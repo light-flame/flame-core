@@ -7,7 +7,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 /**
  * FlameHttpContext
  */
-public class FlameHttpContext implements FlameContext{
+public class FlameHttpContext{
 
     private FullHttpRequest req;
     private FullHttpResponse res;

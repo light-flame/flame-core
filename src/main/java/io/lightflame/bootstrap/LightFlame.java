@@ -16,7 +16,7 @@ public class LightFlame {
     private static final Logger LOGGER = Logger.getLogger(LightFlame.class);
 
     public LightFlame runConfiguration(ConfigFunction configFunction, Config config){
-        configFunction.apply(config);
+        configFunction.setup(config);
         return this;
     }
 

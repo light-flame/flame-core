@@ -2,9 +2,9 @@ package io.lightflame.store;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import io.lightflame.context.FlameHttpContext;
+import io.lightflame.functions.FlameHttpFunction;
 import io.lightflame.util.FlameHttpUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -23,7 +23,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  */
 public class FlameHttpStore {
 
-    static private Map<HttpUrlScore, Function<FlameHttpContext, FlameHttpContext>> functionMap = new HashMap<>();
+    static private Map<HttpUrlScore, FlameHttpFunction> functionMap = new HashMap<>();
 
     private String prefix = "";
 
@@ -35,11 +35,11 @@ public class FlameHttpStore {
     }
 
     public FlameHttpContext runFunctionByRequest(FullHttpRequest request){
-        Function<FlameHttpContext, FlameHttpContext> function = handler404();
+        FlameHttpFunction function = handler404();
         String rawUri = "";
         int finalScore = 0;
 
-        for (Map.Entry<HttpUrlScore,Function<FlameHttpContext, FlameHttpContext>> entry : functionMap.entrySet()){
+        for (Map.Entry<HttpUrlScore,FlameHttpFunction> entry : functionMap.entrySet()){
             int score = entry.getKey().getScore(request.uri(), request.method().name());
             if (score > finalScore){
                 function = entry.getValue();
@@ -49,19 +49,19 @@ public class FlameHttpStore {
         }
 
         FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(rawUri));
-        return function.apply(ctx);
+        return function.chain(ctx);
     }
 
-    public void httpGET(String url, Function<FlameHttpContext, FlameHttpContext> function){
+    public void httpGET(String url, FlameHttpFunction function){
         functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.GET.name()), function);
     }
 
 
-    public void httpPOST(String url, Function<FlameHttpContext, FlameHttpContext> function){
+    public void httpPOST(String url, FlameHttpFunction function){
         functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.POST.name()), function);
     }
 
-    private Function<FlameHttpContext, FlameHttpContext> handler404() {
+    private FlameHttpFunction handler404() {
         return (ctx) -> {
             FullHttpResponse response = new DefaultFullHttpResponse(
                 ctx.getRequest().protocolVersion(), 

@@ -18,7 +18,7 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 public class FlameExceptionStore {
     static private Map<Exception, ExceptionHttpFunction> functionMap = new HashMap<>();
 
-    public ExceptionHttpFunction getFunction(Exception e){
+    public ExceptionHttpFunction getFunction(Throwable e){
         ExceptionHttpFunction f = functionMap.get(e);
         if (f == null){
             f = defaultFunction();

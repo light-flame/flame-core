@@ -34,7 +34,7 @@ public class FlameHttpStore {
         this.prefix = prefix;
     }
 
-    public FlameHttpContext runFunctionByRequest(FullHttpRequest request){
+    public FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
         FlameHttpFunction function = handler404();
         String rawUri = "";
         int finalScore = 0;

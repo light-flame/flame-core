@@ -8,6 +8,6 @@ import io.lightflame.context.FlameHttpContext;
 @FunctionalInterface
 public interface FlameHttpFunction {
 
-    FlameHttpContext chain(FlameHttpContext ctx);
+    FlameHttpContext chain(FlameHttpContext ctx) throws Exception;
     
 }

@@ -118,7 +118,7 @@ public class FlameHttpServerHandler extends SimpleChannelInboundHandler<Object> 
             FlameHttpContext flameCtx = new FlameHttpStore().runFunctionByRequest(request);
             response = flameCtx.getResponse();
         }catch(Exception e){
-            ExceptionHttpFunction fExc =  new FlameExceptionStore().getFunction(e.initCause(e));
+            ExceptionHttpFunction fExc =  new FlameExceptionStore().getFunction(e);
             response = fExc.call(e);
         }finally{
             writeOnEnd(ctx, keepAlive);

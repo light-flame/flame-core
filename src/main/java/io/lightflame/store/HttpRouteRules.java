@@ -1,11 +1,15 @@
 package io.lightflame.store;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Map.Entry;
+
+import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpRouteRule
@@ -16,9 +20,6 @@ interface Rule {
 }
 
 public class HttpRouteRules {
-
-
-
     public class HttpRouteRule{
         private Integer id;
         private List<Rule> rules = new ArrayList<>();
@@ -64,8 +65,9 @@ public class HttpRouteRules {
             return true;
         }
 
-        public void set(){
+        public int set(){
             routeRules.add(this);
+            return this.id;
         }
 
         public class HeaderRule implements Rule{
@@ -73,7 +75,7 @@ public class HttpRouteRules {
 
             private Map<String,Boolean> makeMap(String v){
                 Map<String,Boolean> hMap = new HashMap<>();
-                for(String pair : v.split("&")){
+                for(String pair : v.split("|")){
                     hMap.put(pair, true);
                 }
                 return hMap;
@@ -252,6 +254,23 @@ public class HttpRouteRules {
     }
 
 
+    static public int processRequest(FullHttpRequest request){
+        // "x-auth=abc","GET","/path/to/my","name=daniel"
+
+        String headers = "";
+        for (Entry<String,String> e : request.headers().entries()){
+            headers += String.format("%s=%s|", e.getKey(), e.getValue());
+        }
+
+        String[] uriSpl =  request.uri().split("\\?");
+        String qParam = uriSpl.length == 2 ? uriSpl[1] : "";
+        return processRequest(Arrays.asList(
+            headers, 
+            request.method().name(),
+            uriSpl[0],
+            qParam
+        ));
+    }
 
     static public int processRequest(List<String> incomeReq){
 

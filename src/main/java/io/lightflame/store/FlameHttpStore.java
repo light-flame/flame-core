@@ -2,15 +2,17 @@ package io.lightflame.store;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import io.lightflame.context.FlameHttpContext;
 import io.lightflame.functions.FlameHttpFunction;
+import io.lightflame.store.HttpRouteRules.HttpRouteRule;
+import io.lightflame.store.HttpRouteRules.RuleEnum;
 import io.lightflame.util.FlameHttpUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -23,7 +25,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
  */
 public class FlameHttpStore {
 
-    static private Map<HttpUrlScore, FlameHttpFunction> functionMap = new HashMap<>();
+    static private Map<String, FlameHttpFunction> functionMap = new HashMap<>();
 
     private String prefix = "";
 
@@ -36,29 +38,41 @@ public class FlameHttpStore {
 
     public FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
         FlameHttpFunction function = handler404();
-        String rawUri = "";
-        int finalScore = 0;
 
-        for (Map.Entry<HttpUrlScore,FlameHttpFunction> entry : functionMap.entrySet()){
-            int score = entry.getKey().getScore(request.uri(), request.method().name());
-            if (score > finalScore){
-                function = entry.getValue();
-                rawUri = entry.getKey().getRawConditionURI();
-                finalScore = score;
-            }
+        HttpRouteRule httpRule = HttpRouteRules.processRequest(request);
+        if (httpRule != null) {
+            function = functionMap.get(httpRule.getId());
         }
 
-        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(rawUri));
+        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(httpRule));
         return function.chain(ctx);
     }
 
+    public FlameHttpStore addHeaderRyle(){
+        return this;
+    }
+
+    private HttpRouteRule generateRule(String key){
+        return null;
+    }
+
     public void httpGET(String url, FlameHttpFunction function){
-        functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.GET.name()), function);
+        String key = UUID.randomUUID().toString();
+        new HttpRouteRules().newRoute(key)
+            .addRule(RuleEnum.PATH, this.prefix + url)
+            .addRule(RuleEnum.METHOD, "GET")
+            .set();
+        functionMap.put(key, function);
     }
 
 
     public void httpPOST(String url, FlameHttpFunction function){
-        functionMap.put(new HttpUrlScore(this.prefix + url, HttpMethod.POST.name()), function);
+        String key = UUID.randomUUID().toString();
+        new HttpRouteRules().newRoute(key)
+            .addRule(RuleEnum.PATH, this.prefix + url)
+            .addRule(RuleEnum.METHOD, "POST")
+            .set();
+        functionMap.put(key, function);
     }
 
     private FlameHttpFunction handler404() {

@@ -2,22 +2,46 @@ package io.lightflame.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import io.lightflame.store.Rule;
+import io.lightflame.store.HttpRouteRules.HttpRouteRule;
+import io.lightflame.store.HttpRouteRules.RuleEnum;
+import io.lightflame.store.HttpRouteRules.HttpRouteRule.PathRule;
 
 /**
  * HttpUtils
  */
 public class FlameHttpUtils {
 
+    private HttpRouteRule routeRule;
     private Map<String,Integer> dynamicSegm = new HashMap<>();
 
-    public FlameHttpUtils(String condURI) {
+    public FlameHttpUtils(HttpRouteRule r) {
+        this.routeRule = r;
+        Optional<Rule> rule = r.getRules().stream().filter(x -> x.kind() == RuleEnum.PATH).findFirst();
+        if (rule.isPresent()){
+            PathRule pathRule = (PathRule)rule.get();
+            this.extractSegments(pathRule.getSegments());
+        }
+    }
+
+    private void extractSegments(String condURI){
         String[] segms = condURI.split("/");
+        this.extractSegments(segms);
+    }
+
+    private void extractSegments(String[] segms){
         for (int i = 0; i < segms.length ; i++){
             if (segms[i].startsWith("{")){
                 String uri =  segms[i].substring(1, segms[i].length()-1);
                 dynamicSegm.put(uri, i);
             }
         }
+    }
+
+    public FlameHttpUtils(String condURI) {
+        this.extractSegments(condURI);
     }
 
     public String extractQueryParam(String uri, String key){

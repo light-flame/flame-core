@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -14,17 +15,22 @@ import io.netty.handler.codec.http.FullHttpRequest;
 /**
  * HttpRouteRule
  */
-interface Rule {
-    Boolean validate(List<String> s);
-    int score();
-}
+
 
 public class HttpRouteRules {
     public class HttpRouteRule{
-        private Integer id;
+        private String id;
         private List<Rule> rules = new ArrayList<>();
 
-        HttpRouteRule(Integer id){
+        public String getId() {
+            return id;
+        }
+
+        public List<Rule> getRules() {
+            return rules;
+        }
+
+        HttpRouteRule(String id){
             this.id = id;
         }
 
@@ -34,7 +40,7 @@ public class HttpRouteRules {
             }
             if (k.equals(RuleEnum.PATH) || k.equals(RuleEnum.PREFIX)){
                 if (v.contains("*")){
-                    rules.add(new WideCardeRule(v));
+                    rules.add(new PrefixPathRule(v));
                 }else{
                     rules.add(new PathRule(v));
                 }
@@ -65,7 +71,7 @@ public class HttpRouteRules {
             return true;
         }
 
-        public int set(){
+        public String set(){
             routeRules.add(this);
             return this.id;
         }
@@ -101,6 +107,11 @@ public class HttpRouteRules {
             public int score() {
                 return headerMap.size();
             }
+
+            @Override
+            public RuleEnum kind() {
+                return RuleEnum.HEADER;
+            }
         }
 
         public class PathRule implements Rule{
@@ -108,6 +119,15 @@ public class HttpRouteRules {
     
             PathRule(String v){
                 this.segments = v.split("/");
+            }
+
+            @Override
+            public RuleEnum kind() {
+                return RuleEnum.PATH;
+            }
+
+            public String[] getSegments() {
+                return this.segments;
             }
 
             @Override
@@ -139,11 +159,15 @@ public class HttpRouteRules {
             }
         }
 
-        public class WideCardeRule implements Rule{
+        public class PrefixPathRule implements Rule{
             private String[] segments;
 
+            @Override
+            public RuleEnum kind() {
+                return RuleEnum.PREFIX;
+            }
     
-            WideCardeRule(String v){
+            PrefixPathRule(String v){
                 this.segments = v.split("/");
             }
 
@@ -181,6 +205,11 @@ public class HttpRouteRules {
         public class QParamRule implements Rule{
 
             private Map<String,Boolean> qparamMap;
+
+            @Override
+            public RuleEnum kind() {
+                return RuleEnum.QPARAM;
+            }
 
             private Map<String,Boolean> makeMap(String v){
                 Map<String,Boolean> hMap = new HashMap<>();
@@ -220,6 +249,11 @@ public class HttpRouteRules {
             }
 
             @Override
+            public RuleEnum kind() {
+                return RuleEnum.METHOD;
+            }
+
+            @Override
             public Boolean validate(List<String> incomeReq) {
                 String incomeMethod =  incomeReq.get(1);
                 if (incomeMethod == value){
@@ -233,6 +267,7 @@ public class HttpRouteRules {
                 return 1;
             }
         }
+
     }
 
     static private List<HttpRouteRule> routeRules = new ArrayList<>();
@@ -245,16 +280,16 @@ public class HttpRouteRules {
         HEADER
       }
 
-    public HttpRouteRule newRoute(Integer id){
+    public HttpRouteRule newRoute(String id){
         return new HttpRouteRule(id);
     }
 
     public HttpRouteRule newRoute(){
-        return new HttpRouteRule(routeRules.size());
+        return new HttpRouteRule(UUID.randomUUID().toString());
     }
 
 
-    static public int processRequest(FullHttpRequest request){
+    static public HttpRouteRule processRequest(FullHttpRequest request){
         // "x-auth=abc","GET","/path/to/my","name=daniel"
 
         String headers = "";
@@ -272,16 +307,16 @@ public class HttpRouteRules {
         ));
     }
 
-    static public int processRequest(List<String> incomeReq){
+    static public HttpRouteRule processRequest(List<String> incomeReq){
 
         Optional<HttpRouteRule> optRule =  routeRules
             .stream()
             .filter(x -> x.match(incomeReq))
             .max(Comparator.comparing((HttpRouteRule r) -> r.score()));
         if (!optRule.isPresent()){
-            return -1;
+            return null;
         }
-        return optRule.get().id;
+        return optRule.get();
     }
     
 }

@@ -2,12 +2,16 @@ package io.lightflame.store;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Map;
+
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * FlameHttpStoreTest
  */
 public class FlameHttpStoreTest {
+
 
     @Test
     public void testUrlsConditions(){
@@ -73,5 +77,10 @@ public class FlameHttpStoreTest {
         assertEquals(new HttpUrlScore("/api/hello/*", "GET")
             .getScore("/api/hello/world/simple", "GET"), 5);
         //
+    }
+
+    public void t(){
+        // apresentado uma lista de condicoes, qual bate melhor com
+
     }
 }

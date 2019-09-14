@@ -30,6 +30,14 @@ public class HttpRouteRules {
             return rules;
         }
 
+        public Rule getRule(RuleEnum r) {
+            Optional<Rule> ruleOpt = rules.stream().filter(x -> x.kind() == r).findFirst();
+            if (ruleOpt.isPresent()){
+                return ruleOpt.get();
+            }
+            return null;
+        }
+
         HttpRouteRule(String id){
             this.id = id;
         }
@@ -118,7 +126,7 @@ public class HttpRouteRules {
             private String[] segments;
     
             PathRule(String v){
-                this.segments = splitSegment(v);
+                this.segments = FlameHttpUtils.extractSegments(v);
             }
 
             @Override
@@ -134,7 +142,7 @@ public class HttpRouteRules {
             public Boolean validate(List<String> incomeReq) {
                 String incomePath =  incomeReq.get(2);
 
-                String[] incomeSegments = splitSegment(incomePath);
+                String[] incomeSegments = FlameHttpUtils.extractSegments(incomePath);
 
                 if (incomeSegments.length != segments.length){
                     return false;
@@ -168,12 +176,12 @@ public class HttpRouteRules {
             }
     
             PrefixPathRule(String v){
-                this.segments = splitSegment(v);
+                this.segments = FlameHttpUtils.extractSegments(v);
             }
 
             @Override
             public Boolean validate(List<String> incomeReq) {
-                String[] incomeSegms =  splitSegment(incomeReq.get(2));
+                String[] incomeSegms =  FlameHttpUtils.extractSegments(incomeReq.get(2));
 
                 if (incomeSegms.length < segments.length){
                     return false;
@@ -202,9 +210,6 @@ public class HttpRouteRules {
             }
         }
 
-        private String[] splitSegment(String v){
-            v = v.startsWith("/") ? v.replaceFirst("/", "") : v;
-            return v.split("/");        }
 
         public class QParamRule implements Rule{
 

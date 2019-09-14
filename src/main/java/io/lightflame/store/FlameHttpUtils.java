@@ -1,10 +1,8 @@
-package io.lightflame.util;
+package io.lightflame.store;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import io.lightflame.store.Rule;
 import io.lightflame.store.HttpRouteRules.HttpRouteRule;
 import io.lightflame.store.HttpRouteRules.RuleEnum;
 import io.lightflame.store.HttpRouteRules.HttpRouteRule.PathRule;
@@ -14,34 +12,23 @@ import io.lightflame.store.HttpRouteRules.HttpRouteRule.PathRule;
  */
 public class FlameHttpUtils {
 
-    private HttpRouteRule routeRule;
-    private Map<String,Integer> dynamicSegm = new HashMap<>();
-
-    public FlameHttpUtils(HttpRouteRule r) {
-        this.routeRule = r;
-        Optional<Rule> rule = r.getRules().stream().filter(x -> x.kind() == RuleEnum.PATH).findFirst();
-        if (rule.isPresent()){
-            PathRule pathRule = (PathRule)rule.get();
-            this.setDynamicSegm(pathRule.getSegments());
-        }
-    }
-
-    private String[] extractSegments(String condURI){
+    static public String[] extractSegments(String condURI){
         condURI = condURI.startsWith("/") ? condURI.replaceFirst("/", "") : condURI;
         return condURI.split("/");
     }
 
-    private void setDynamicSegm(String[] segms){
+    private Map<String, Integer> makeMapUri(String[] segms){
+        Map<String, Integer> mapUri = new HashMap<>();
         for (int i = 0; i < segms.length ; i++){
             if (segms[i].startsWith("{")){
                 String uri =  segms[i].substring(1, segms[i].length()-1);
-                dynamicSegm.put(uri, i);
+                mapUri.put(uri, i);
             }
         }
+        return mapUri;
     }
 
-    public FlameHttpUtils(String condURI) {
-        this.setDynamicSegm(this.extractSegments(condURI));
+    FlameHttpUtils() {
     }
 
     public String extractQueryParam(String uri, String key){
@@ -65,10 +52,16 @@ public class FlameHttpUtils {
 
     // con example: /path/to/my/{url}
     // uri example: /path/to/my/url
-    public String extractUrlParam(String uri, String name){
-        Integer pathI =  dynamicSegm.get(name);
+    public String extractUrlParam(String uri, String name, HttpRouteRule routeRule){
+        Rule rule = routeRule.getRule(RuleEnum.PATH);
+        if (rule == null){
+            return null;
+        }
+        PathRule pRule = (PathRule)rule;
+        Map<String, Integer> mapUri = this.makeMapUri(pRule.getSegments());
+        Integer pathI =  mapUri.get(name);
         uri = uri.split("\\?",0)[0];
-        String[] uriSpl =  this.extractSegments(uri);
+        String[] uriSpl =  extractSegments(uri);
         if (pathI != null && pathI <= uriSpl.length){
             return uriSpl[pathI];
         }

@@ -8,7 +8,6 @@ import io.lightflame.context.FlameHttpContext;
 import io.lightflame.functions.FlameHttpFunction;
 import io.lightflame.store.HttpRouteRules.HttpRouteRule;
 import io.lightflame.store.HttpRouteRules.RuleEnum;
-import io.lightflame.util.FlameHttpUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -44,16 +43,12 @@ public class FlameHttpStore {
             function = functionMap.get(httpRule.getId());
         }
 
-        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(httpRule));
+        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(), httpRule);
         return function.chain(ctx);
     }
 
     public FlameHttpStore addHeaderRyle(){
         return this;
-    }
-
-    private HttpRouteRule generateRule(String key){
-        return null;
     }
 
     public void httpGET(String url, FlameHttpFunction function){

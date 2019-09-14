@@ -1,6 +1,7 @@
 package io.lightflame.context;
 
-import io.lightflame.util.FlameHttpUtils;
+import io.lightflame.store.FlameHttpUtils;
+import io.lightflame.store.HttpRouteRules.HttpRouteRule;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 
@@ -10,11 +11,12 @@ import io.netty.handler.codec.http.FullHttpResponse;
 public class FlameHttpContext{
 
     private FullHttpRequest req;
+    private HttpRouteRule routeRule;
     private FullHttpResponse res;
     private FlameHttpUtils utils;
 
     public String getPathParam(String name){
-        return utils.extractUrlParam(req.uri(), name);
+        return utils.extractUrlParam(req.uri(), name, routeRule);
     }
 
     public String getQueryUrl(String name){
@@ -38,7 +40,8 @@ public class FlameHttpContext{
         this.req = req;
     }
     
-    public FlameHttpContext(FullHttpRequest req, FlameHttpUtils utils) {
+    public FlameHttpContext(FullHttpRequest req, FlameHttpUtils utils, HttpRouteRule routeRule) {
+        this.routeRule = routeRule;
         this.utils = utils;
         this.req = req;
     }

@@ -19,6 +19,10 @@ public class FlameHttpContext{
         return utils.extractUrlParam(req.uri(), name, routeRule);
     }
 
+    public String getPathWithoutPrefix(){
+        return utils.getPathWithoutPrefix(req.uri(), routeRule);
+    }
+
     public String getQueryUrl(String name){
         return utils.extractQueryParam(req.uri(), name);
     }

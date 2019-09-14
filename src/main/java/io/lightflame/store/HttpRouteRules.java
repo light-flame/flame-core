@@ -176,7 +176,16 @@ public class HttpRouteRules {
             }
     
             PrefixPathRule(String v){
+                v = v.endsWith("*") ? v.substring(0, v.length() -1) : v;
                 this.segments = FlameHttpUtils.extractSegments(v);
+            }
+
+            String getPrefix(){
+                String prefix = "";
+                for (String segm : this.segments){
+                    prefix += String.format("%s/", segm);
+                }
+                return prefix;
             }
 
             @Override

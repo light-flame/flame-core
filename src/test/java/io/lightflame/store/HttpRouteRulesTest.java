@@ -68,4 +68,21 @@ public class HttpRouteRulesTest {
         assertEquals("7", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/url/bigger/more","name=carol")).getId());
         assertEquals("8", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/url/bigger","name=carol")).getId());
     }
+
+    @Test
+    public void testCase2(){
+
+        new HttpRouteRules().newRoute("1")
+            .addRule(RuleEnum.PATH, "/*")
+            .set();
+        //
+        new HttpRouteRules().newRoute("2")
+            .addRule(RuleEnum.PATH, "/path/*")
+            .set();
+
+        assertEquals("1", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/","")).getId());
+        assertEquals("2", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/path","")).getId());
+        assertEquals("2", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my","")).getId());
+
+    }
 }

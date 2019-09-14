@@ -6,6 +6,7 @@ import java.util.Map;
 import io.lightflame.store.HttpRouteRules.HttpRouteRule;
 import io.lightflame.store.HttpRouteRules.RuleEnum;
 import io.lightflame.store.HttpRouteRules.HttpRouteRule.PathRule;
+import io.lightflame.store.HttpRouteRules.HttpRouteRule.PrefixPathRule;
 
 /**
  * HttpUtils
@@ -49,6 +50,14 @@ public class FlameHttpUtils {
     }
 
     
+    public String getPathWithoutPrefix(String uri, HttpRouteRule routeRule){
+        Rule rule = routeRule.getRule(RuleEnum.PREFIX);
+        if (rule == null){
+            return "";
+        }
+        PrefixPathRule pRule = (PrefixPathRule)rule;
+        return uri.replace(pRule.getPrefix(), "");
+    }
 
     // con example: /path/to/my/{url}
     // uri example: /path/to/my/url

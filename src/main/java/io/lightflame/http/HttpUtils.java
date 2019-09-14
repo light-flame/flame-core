@@ -1,19 +1,19 @@
-package io.lightflame.store;
+package io.lightflame.http;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import io.lightflame.store.HttpRouteRules.HttpRouteRule;
-import io.lightflame.store.HttpRouteRules.RuleEnum;
-import io.lightflame.store.HttpRouteRules.HttpRouteRule.PathRule;
-import io.lightflame.store.HttpRouteRules.HttpRouteRule.PrefixPathRule;
+import io.lightflame.http.HttpRouteRules.HttpRouteRule;
+import io.lightflame.http.HttpRouteRules.RuleEnum;
+import io.lightflame.http.HttpRouteRules.HttpRouteRule.PathRule;
+import io.lightflame.http.HttpRouteRules.HttpRouteRule.PrefixPathRule;
 
 /**
  * HttpUtils
  */
-public class FlameHttpUtils {
+public class HttpUtils {
 
-    static public String[] extractSegments(String condURI){
+    static String[] extractSegments(String condURI){
         condURI = condURI.startsWith("/") ? condURI.replaceFirst("/", "") : condURI;
         return condURI.split("/");
     }
@@ -29,10 +29,10 @@ public class FlameHttpUtils {
         return mapUri;
     }
 
-    FlameHttpUtils() {
+    HttpUtils() {
     }
 
-    public String extractQueryParam(String uri, String key){
+    String extractQueryParam(String uri, String key){
         String[] uris = uri.split("\\?",0);
         if (uris.length != 2){
             return null;

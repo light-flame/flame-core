@@ -6,7 +6,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.lightflame.store.HttpRouteRules.RuleEnum;
+import io.lightflame.http.HttpRouteRules;
+import io.lightflame.http.HttpRouteRules.RuleEnum;
 
 
 /**

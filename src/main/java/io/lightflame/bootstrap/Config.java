@@ -1,4 +1,4 @@
-package io.lightflame.configuration;
+package io.lightflame.bootstrap;
 
 /**
  * Config

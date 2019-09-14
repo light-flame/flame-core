@@ -1,4 +1,4 @@
-package io.lightflame.store;
+package io.lightflame.http;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,11 +10,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.Map.Entry;
 
+import io.lightflame.http.HttpRouteRules.RuleEnum;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpRouteRule
  */
+
+interface Rule {
+    Boolean validate(List<String> s);
+    RuleEnum kind();
+    int score();
+}
 
 
 public class HttpRouteRules {
@@ -126,7 +133,7 @@ public class HttpRouteRules {
             private String[] segments;
     
             PathRule(String v){
-                this.segments = FlameHttpUtils.extractSegments(v);
+                this.segments = HttpUtils.extractSegments(v);
             }
 
             @Override
@@ -142,7 +149,7 @@ public class HttpRouteRules {
             public Boolean validate(List<String> incomeReq) {
                 String incomePath =  incomeReq.get(2);
 
-                String[] incomeSegments = FlameHttpUtils.extractSegments(incomePath);
+                String[] incomeSegments = HttpUtils.extractSegments(incomePath);
 
                 if (incomeSegments.length != segments.length){
                     return false;
@@ -177,7 +184,7 @@ public class HttpRouteRules {
     
             PrefixPathRule(String v){
                 v = v.endsWith("*") ? v.substring(0, v.length() -1) : v;
-                this.segments = FlameHttpUtils.extractSegments(v);
+                this.segments = HttpUtils.extractSegments(v);
             }
 
             String getPrefix(){
@@ -190,7 +197,7 @@ public class HttpRouteRules {
 
             @Override
             public Boolean validate(List<String> incomeReq) {
-                String[] incomeSegms =  FlameHttpUtils.extractSegments(incomeReq.get(2));
+                String[] incomeSegms =  HttpUtils.extractSegments(incomeReq.get(2));
 
                 if (incomeSegms.length < segments.length){
                     return false;

@@ -13,12 +13,12 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.lightflame.http2;
+package io.lightflame.http;
 
-import io.lightflame.store.FlameExceptionStore;
-import io.lightflame.store.FlameHttpStore;
-import io.lightflame.context.FlameHttpContext;
-import io.lightflame.functions.ExceptionHttpFunction;
+import io.lightflame.http.ExceptionHttpFunction;
+import io.lightflame.http.FlameHttpContext;
+import io.lightflame.http.FlameHttpExceptionStore;
+import io.lightflame.http.FlameHttpStore;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -43,7 +43,7 @@ import java.util.Set;
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 import static io.netty.handler.codec.http.HttpVersion.*;
 
-public class FlameHttpServerHandler extends SimpleChannelInboundHandler<Object> {
+public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
 
     private FullHttpRequest request;
     FullHttpResponse response;
@@ -118,7 +118,7 @@ public class FlameHttpServerHandler extends SimpleChannelInboundHandler<Object> 
             FlameHttpContext flameCtx = new FlameHttpStore().runFunctionByRequest(request);
             response = flameCtx.getResponse();
         }catch(Exception e){
-            ExceptionHttpFunction fExc =  new FlameExceptionStore().getFunction(e);
+            ExceptionHttpFunction fExc =  new FlameHttpExceptionStore().getFunction(e);
             response = fExc.call(e);
         }finally{
             writeOnEnd(ctx, keepAlive);

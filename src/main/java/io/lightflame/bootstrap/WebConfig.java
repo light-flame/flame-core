@@ -1,4 +1,4 @@
-package io.lightflame.http2;
+package io.lightflame.bootstrap;
 
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -21,7 +21,7 @@ public class WebConfig {
     static final boolean SSL = System.getProperty("ssl") != null;
     static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
 
-    static public void start(int port) {
+    static void start(int port) {
         SslContext sslCtx;
         try {
             if (SSL) {

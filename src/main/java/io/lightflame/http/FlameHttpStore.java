@@ -1,13 +1,11 @@
-package io.lightflame.store;
+package io.lightflame.http;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import io.lightflame.context.FlameHttpContext;
-import io.lightflame.functions.FlameHttpFunction;
-import io.lightflame.store.HttpRouteRules.HttpRouteRule;
-import io.lightflame.store.HttpRouteRules.RuleEnum;
+import io.lightflame.http.HttpRouteRules.HttpRouteRule;
+import io.lightflame.http.HttpRouteRules.RuleEnum;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -43,7 +41,7 @@ public class FlameHttpStore {
             function = functionMap.get(httpRule.getId());
         }
 
-        FlameHttpContext ctx = new FlameHttpContext(request, new FlameHttpUtils(), httpRule);
+        FlameHttpContext ctx = new FlameHttpContext(request, new HttpUtils(), httpRule);
         return function.chain(ctx);
     }
 
@@ -54,7 +52,6 @@ public class FlameHttpStore {
     public void httpGET(String url, FlameHttpFunction function){
         String key = UUID.randomUUID().toString();
         new HttpRouteRules().newRoute(key)
-            .addRule(RuleEnum.PATH, this.prefix + url)
             .addRule(RuleEnum.METHOD, "GET")
             .set();
         functionMap.put(key, function);

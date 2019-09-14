@@ -1,10 +1,9 @@
-package io.lightflame.store;
+package io.lightflame.http;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-import io.lightflame.functions.ExceptionHttpFunction;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.util.CharsetUtil;
@@ -15,7 +14,7 @@ import static io.netty.handler.codec.http.HttpVersion.*;
 /**
  * DefaultExceptionStore
  */
-public class FlameExceptionStore {
+public class FlameHttpExceptionStore {
     static private Map<Exception, ExceptionHttpFunction> functionMap = new HashMap<>();
 
     public ExceptionHttpFunction getFunction(Throwable e){

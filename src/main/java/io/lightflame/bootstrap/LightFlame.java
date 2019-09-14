@@ -4,9 +4,7 @@ package io.lightflame.bootstrap;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
-import io.lightflame.configuration.Config;
 import io.lightflame.functions.ConfigFunction;
-import io.lightflame.http2.WebConfig;
 
 /**
  * LightFlame

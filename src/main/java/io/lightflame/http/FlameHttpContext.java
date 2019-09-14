@@ -1,7 +1,6 @@
-package io.lightflame.context;
+package io.lightflame.http;
 
-import io.lightflame.store.FlameHttpUtils;
-import io.lightflame.store.HttpRouteRules.HttpRouteRule;
+import io.lightflame.http.HttpRouteRules.HttpRouteRule;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 
@@ -13,7 +12,7 @@ public class FlameHttpContext{
     private FullHttpRequest req;
     private HttpRouteRule routeRule;
     private FullHttpResponse res;
-    private FlameHttpUtils utils;
+    private HttpUtils utils;
 
     public String getPathParam(String name){
         return utils.extractUrlParam(req.uri(), name, routeRule);
@@ -44,7 +43,7 @@ public class FlameHttpContext{
         this.req = req;
     }
     
-    public FlameHttpContext(FullHttpRequest req, FlameHttpUtils utils, HttpRouteRule routeRule) {
+    public FlameHttpContext(FullHttpRequest req, HttpUtils utils, HttpRouteRule routeRule) {
         this.routeRule = routeRule;
         this.utils = utils;
         this.req = req;

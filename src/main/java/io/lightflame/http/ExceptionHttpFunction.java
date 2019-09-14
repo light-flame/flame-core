@@ -1,4 +1,4 @@
-package io.lightflame.functions;
+package io.lightflame.http;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 

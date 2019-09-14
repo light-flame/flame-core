@@ -1,6 +1,5 @@
-package io.lightflame.functions;
+package io.lightflame.http;
 
-import io.lightflame.context.FlameHttpContext;
 
 /**
  * HttpFunction

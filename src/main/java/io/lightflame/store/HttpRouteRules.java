@@ -118,7 +118,7 @@ public class HttpRouteRules {
             private String[] segments;
     
             PathRule(String v){
-                this.segments = v.split("/");
+                this.segments = splitSegment(v);
             }
 
             @Override
@@ -134,7 +134,7 @@ public class HttpRouteRules {
             public Boolean validate(List<String> incomeReq) {
                 String incomePath =  incomeReq.get(2);
 
-                String[] incomeSegments = incomePath.split("/");
+                String[] incomeSegments = splitSegment(incomePath);
 
                 if (incomeSegments.length != segments.length){
                     return false;
@@ -168,12 +168,12 @@ public class HttpRouteRules {
             }
     
             PrefixPathRule(String v){
-                this.segments = v.split("/");
+                this.segments = splitSegment(v);
             }
 
             @Override
             public Boolean validate(List<String> incomeReq) {
-                String[] incomeSegms =  incomeReq.get(2).split("/");
+                String[] incomeSegms =  splitSegment(incomeReq.get(2));
 
                 if (incomeSegms.length < segments.length){
                     return false;
@@ -201,6 +201,10 @@ public class HttpRouteRules {
                 return segments.length;
             }
         }
+
+        private String[] splitSegment(String v){
+            v = v.startsWith("/") ? v.replaceFirst("/", "") : v;
+            return v.split("/");        }
 
         public class QParamRule implements Rule{
 

@@ -22,16 +22,16 @@ public class FlameHttpUtils {
         Optional<Rule> rule = r.getRules().stream().filter(x -> x.kind() == RuleEnum.PATH).findFirst();
         if (rule.isPresent()){
             PathRule pathRule = (PathRule)rule.get();
-            this.extractSegments(pathRule.getSegments());
+            this.setDynamicSegm(pathRule.getSegments());
         }
     }
 
-    private void extractSegments(String condURI){
-        String[] segms = condURI.split("/");
-        this.extractSegments(segms);
+    private String[] extractSegments(String condURI){
+        condURI = condURI.startsWith("/") ? condURI.replaceFirst("/", "") : condURI;
+        return condURI.split("/");
     }
 
-    private void extractSegments(String[] segms){
+    private void setDynamicSegm(String[] segms){
         for (int i = 0; i < segms.length ; i++){
             if (segms[i].startsWith("{")){
                 String uri =  segms[i].substring(1, segms[i].length()-1);
@@ -41,7 +41,7 @@ public class FlameHttpUtils {
     }
 
     public FlameHttpUtils(String condURI) {
-        this.extractSegments(condURI);
+        this.setDynamicSegm(this.extractSegments(condURI));
     }
 
     public String extractQueryParam(String uri, String key){
@@ -68,7 +68,7 @@ public class FlameHttpUtils {
     public String extractUrlParam(String uri, String name){
         Integer pathI =  dynamicSegm.get(name);
         uri = uri.split("\\?",0)[0];
-        String[] uriSpl =  uri.split("/");
+        String[] uriSpl =  this.extractSegments(uri);
         if (pathI != null && pathI <= uriSpl.length){
             return uriSpl[pathI];
         }

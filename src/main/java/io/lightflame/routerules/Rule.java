@@ -3,10 +3,10 @@ package io.lightflame.routerules;
 /**
  * Rule
  */
-public interface Rule<C,E> {
+
+public interface Rule<E> {
 
     boolean isValid(E obj);
     RuleKind kind();
-    void setParam(C obj);
     int score();
 }

@@ -1,24 +1,27 @@
 package io.lightflame.routerules;
 
+import java.util.Map;
+
 import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpHeaderRule
  */
-public class HttpHeaderRule implements Rule<FullHttpRequest>{
+public class HttpQParamRule implements Rule<FullHttpRequest>{
 
     private String key;
     private String value;
 
-    public HttpHeaderRule(String k, String v) {
+    public HttpQParamRule(String k, String v) {
         this.key = k;
         this.value = v;
     }
 
     @Override
     public boolean isValid(FullHttpRequest req) {
-        String v = req.headers().get(key);
-        return v.equals(this.value);
+        Map<String,String> queryParam = Utils.extractQueryParam(req.uri());
+        if (!queryParam.containsKey(this.key)) return false;
+        return queryParam.get(this.key).equals(this.value);
     }
 
     @Override

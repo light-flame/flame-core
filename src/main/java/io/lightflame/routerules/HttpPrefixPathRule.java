@@ -1,15 +1,22 @@
 package io.lightflame.routerules;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+
 /**
  * HttpPrefixPathRule
  */
-public class HttpPrefixPathRule implements Rule<String, String>{
+public class HttpPrefixPathRule implements Rule<FullHttpRequest>{
 
     private String[] segments;
 
+    public HttpPrefixPathRule(String v) {
+        v = v.endsWith("*") ? v.substring(0, v.length() -1) : v;
+        this.segments = Utils.extractSegments(v);
+    }
+
     @Override
-    public boolean isValid(String obj) {
-        String[] incomeSegms =  Utils.extractSegments(obj);
+    public boolean isValid(FullHttpRequest req) {
+        String[] incomeSegms =  Utils.extractSegments(req.uri());
 
         if (incomeSegms.length < segments.length){
             return false;
@@ -35,12 +42,6 @@ public class HttpPrefixPathRule implements Rule<String, String>{
     @Override
     public RuleKind kind() {
         return HttpRuleKind.PREFIX;
-    }
-
-    @Override
-    public void setParam(String obj) {
-        this.segments = Utils.extractSegments(obj);
-
     }
 
     @Override

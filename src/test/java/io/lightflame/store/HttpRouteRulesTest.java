@@ -8,6 +8,11 @@ import org.junit.Test;
 
 import io.lightflame.http.HttpRouteRules;
 import io.lightflame.http.HttpRouteRules.RuleEnum;
+import io.lightflame.routerules.*;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 
 
 /**
@@ -16,74 +21,124 @@ import io.lightflame.http.HttpRouteRules.RuleEnum;
 public class HttpRouteRulesTest {
 
     
-
     @Test
-    public void testCase1(){
+    public void testcase0(){
 
-        new HttpRouteRules().newRoute("1")
-            .addRule(RuleEnum.PATH, "/path/to/my")
-            .set();
-        //
-        new HttpRouteRules().newRoute("2")
-            .addRule(RuleEnum.PATH, "/path/to/my")
-            .addRule(RuleEnum.METHOD, "GET")
-            .set();
-        //
-        new HttpRouteRules().newRoute("3")
-            .addRule(RuleEnum.PATH, "/path/to/my")
-            .addRule(RuleEnum.METHOD, "GET")
-            .addRule(RuleEnum.QPARAM, "name=carol")
-            .set();
-        //
-        new HttpRouteRules().newRoute("4")
-            .addRule(RuleEnum.PATH, "/path/to/my")
-            .addRule(RuleEnum.METHOD, "GET")
-            .addRule(RuleEnum.QPARAM, "name=carol")
-            .addRule(RuleEnum.HEADER, "x-auth=xlz")
-            .set();
-        //
-        new HttpRouteRules().newRoute("5")
-            .addRule(RuleEnum.PATH, "/path/to/my/url")
-            .addRule(RuleEnum.METHOD, "GET")
-            .set();
-        //
-        new HttpRouteRules().newRoute("6")
-            .addRule(RuleEnum.PREFIX, "/path/to/*")
-            .addRule(RuleEnum.METHOD, "POST")
-            .set();
-        //
-        new HttpRouteRules().newRoute("7")
-            .addRule(RuleEnum.PREFIX, "/path/to/*")
-            .set();
-        //
-        new HttpRouteRules().newRoute("8")
-            .addRule(RuleEnum.PATH, "/path/to/my/url/{param}")
-            .set();
+        RouteStore<FullHttpRequest> rs = new RouteStore<>();
 
-        assertEquals("2", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/path/to/my","name=daniel")).getId());
-        assertEquals("3", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/path/to/my","name=carol")).getId());
-        assertEquals("4", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my","name=carol")).getId());
-        assertEquals("5", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/url","name=carol")).getId());
-        assertEquals("6", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","POST","/path/to/my/life","name=carol")).getId());
-        assertEquals("7", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/life","name=carol")).getId());
-        assertEquals("7", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/url/bigger/more","name=carol")).getId());
-        assertEquals("8", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my/url/bigger","name=carol")).getId());
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "1")
+                .addRule(new HttpPathRule("/path/to/my"))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "2")
+                .addRule(new HttpPathRule("/path/to/my"))
+                .addRule(new HttpMethodRule(HttpMethod.GET))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "3")
+                .addRule(new HttpPathRule("/path/to/my"))
+                .addRule(new HttpMethodRule(HttpMethod.GET))
+                .addRule(new HttpQParamRule("name", "carol"))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "4")
+                .addRule(new HttpPathRule("/path/to/my"))
+                .addRule(new HttpMethodRule(HttpMethod.GET))
+                .addRule(new HttpQParamRule("name", "carol"))
+                .addRule(new HttpHeaderRule("x-auth", "xlz"))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "5")
+                .addRule(new HttpPathRule("/path/to/my/url"))
+                .addRule(new HttpMethodRule(HttpMethod.GET))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "6")
+                .addRule(new HttpPrefixPathRule("/path/to/*"))
+                .addRule(new HttpMethodRule(HttpMethod.POST))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "7")
+                .addRule(new HttpPrefixPathRule("/path/to/*"))
+        );
+
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "8")
+                .addRule(new HttpPathRule("/path/to/my/url/{param}"))
+        );
+
+
+        FullHttpRequest request;
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my?name=daniel");
+        request.headers().set("x-auth", "abc");
+        assertEquals("2", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my?name=carol");
+        request.headers().set("x-auth", "abc");
+        assertEquals("3", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("4", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my/url?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("5", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/path/to/my/life?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("6", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my/life?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("7", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my/url/bigger/more?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("7", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my/url/bigger?name=carol");
+        request.headers().set("x-auth", "xlz");
+        assertEquals("8", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+        
     }
 
     @Test
-    public void testCase2(){
+    public void testcase2(){
 
-        new HttpRouteRules().newRoute("1")
-            .addRule(RuleEnum.PATH, "/*")
-            .set();
-        //
-        new HttpRouteRules().newRoute("2")
-            .addRule(RuleEnum.PATH, "/path/*")
-            .set();
+        RouteStore<FullHttpRequest> rs = new RouteStore<>();
 
-        assertEquals("1", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/","")).getId());
-        assertEquals("2", HttpRouteRules.processRequest(Arrays.asList("x-auth=abc","GET","/path","")).getId());
-        assertEquals("2", HttpRouteRules.processRequest(Arrays.asList("x-auth=xlz","GET","/path/to/my","")).getId());
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "1")
+                .addRule(new HttpPrefixPathRule("/*"))
+        );
 
+        rs.addRouteRule(
+            new RouteRules(StoreKind.HTTP_STORE, "2")
+                .addRule(new HttpPrefixPathRule("/path/*"))
+        );
+
+
+        FullHttpRequest request;
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+        request.headers().set("x-auth", "abc");
+        assertEquals("1", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path");
+        request.headers().set("x-auth", "abc");
+        assertEquals("2", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/path/to/my");
+        request.headers().set("x-auth", "abc");
+        assertEquals("2", rs.getRouteRules(request, StoreKind.HTTP_STORE).getKey());
     }
 }

@@ -1,14 +1,20 @@
 package io.lightflame.routerules;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+
 /**
  * HttpPathRule
  */
-public class HttpPathRule implements Rule<String, String>{
+public class HttpPathRule implements Rule<FullHttpRequest>{
     private String[] segments;
 
+    public HttpPathRule(String obj) {
+        this.segments = Utils.extractSegments(obj);
+    }
+
     @Override
-    public boolean isValid(String incomePath) {
-        String[] incomeSegments = Utils.extractSegments(incomePath);
+    public boolean isValid(FullHttpRequest req) {
+        String[] incomeSegments = Utils.extractSegments(req.uri());
 
         if (incomeSegments.length != segments.length){
             return false;
@@ -29,11 +35,6 @@ public class HttpPathRule implements Rule<String, String>{
     @Override
     public RuleKind kind() {
         return HttpRuleKind.PATH;
-    }
-
-    @Override
-    public void setParam(String obj) {
-        this.segments = Utils.extractSegments(obj);
     }
 
     @Override

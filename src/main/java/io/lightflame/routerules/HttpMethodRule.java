@@ -1,15 +1,22 @@
 package io.lightflame.routerules;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+
 /**
  * HttpMethodRule
  */
-public class HttpMethodRule implements Rule<String, String>{
+public class HttpMethodRule implements Rule<FullHttpRequest>{
 
-    private String method;
+    private HttpMethod method;
+
+    public HttpMethodRule(HttpMethod m) {
+        this.method = m;
+    }
 
     @Override
-    public boolean isValid(String method) {
-        return method.equals(this.method);
+    public boolean isValid(FullHttpRequest req) {
+        return req.method().equals(this.method);
     }
 
     @Override
@@ -20,11 +27,6 @@ public class HttpMethodRule implements Rule<String, String>{
     @Override
     public int score() {
         return 1;
-    }
-
-    @Override
-    public void setParam(String m) {
-        this.method = m;
     }
 
     

@@ -9,24 +9,24 @@ import java.util.UUID;
 /**
  * RuleUtil
  */
-public class RouteStore<C,E> {
+public class RouteStore<E> {
 
-    List<RouteRules<C,E>> routeRules = new ArrayList<>();
+    static private List<RouteRules> routeRules = new ArrayList<>();
 
-    public String addRouteRule(RouteRules<C,E> routeRule){
+    public String addRouteRule(RouteRules routeRule){
         if (routeRule.getKey() == null){
             routeRule.setKey(UUID.randomUUID().toString());
         }
-        this.routeRules.add(routeRule);
+        routeRules.add(routeRule);
         return routeRule.getKey();
     }
 
-    public RouteRules<C,E> getRouteRules(E income, StoreKind store){
-        Optional<RouteRules<C,E>> optRule =  routeRules
+    public RouteRules getRouteRules(E income, StoreKind store){
+        Optional<RouteRules> optRule =  routeRules
             .stream()
             .filter(x -> x.getStore().equals(store))
             .filter(x -> x.match(income))
-            .max(Comparator.comparing((RouteRules<C,E> r) -> r.score()));
+            .max(Comparator.comparing((RouteRules r) -> r.score()));
         if (!optRule.isPresent()){
             return null;
         }

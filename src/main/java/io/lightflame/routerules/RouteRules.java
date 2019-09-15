@@ -7,13 +7,13 @@ import java.util.Optional;
 /**
  * RulesStore
  */
-public class RouteRules<C,E> {
+public class RouteRules {
 
-    List<Rule<C,E>> ruleList = new ArrayList<>();
+    List<Rule> ruleList = new ArrayList<>();
     private String key;
     private StoreKind store;
 
-    RouteRules(StoreKind s, String k) {
+    public RouteRules(StoreKind s, String k) {
         this.store = s;
         this.key = k;
     }
@@ -22,7 +22,7 @@ public class RouteRules<C,E> {
         return this.store;
     }
 
-    String getKey(){
+    public String getKey(){
         return this.key;
     }
 
@@ -30,8 +30,8 @@ public class RouteRules<C,E> {
         this.key = k;
     }
 
-    Rule<C,E> getRule(RuleKind rk) {
-        Optional<Rule<C,E>> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
+    Rule getRule(RuleKind rk) {
+        Optional<Rule> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
         if (ruleOpt.isPresent()){
             return ruleOpt.get();
         }
@@ -40,21 +40,22 @@ public class RouteRules<C,E> {
 
     
 
-    RouteRules<C,E> addRule(Rule<C,E> rule, C p){
-        rule.setParam(p);
+    public RouteRules addRule(Rule rule){
+        ruleList.add(rule);
         return this;
     }
 
     int score(){
         int score = 0;
-        for (Rule<C,E> rule : ruleList){
+        for (Rule rule : ruleList){
             score += rule.score();
         }
         return score;
     }
 
-    boolean match(E income){            
-        for (Rule<C,E> rule : ruleList) {
+    @SuppressWarnings("unchecked")
+    <E> boolean match(E income){            
+        for (Rule rule : ruleList) {
             if (!rule.isValid(income)){
                 return false;
             }

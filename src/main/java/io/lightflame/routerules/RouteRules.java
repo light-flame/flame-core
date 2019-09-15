@@ -1,8 +1,10 @@
 package io.lightflame.routerules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * RulesStore
@@ -18,6 +20,11 @@ public class RouteRules {
         this.key = k;
     }
 
+    public RouteRules(StoreKind s) {
+        this.store = s;
+        this.key = UUID.randomUUID().toString();
+    }
+
     StoreKind getStore(){
         return this.store;
     }
@@ -30,7 +37,7 @@ public class RouteRules {
         this.key = k;
     }
 
-    Rule getRule(RuleKind rk) {
+    public Rule getRule(RuleKind rk) {
         Optional<Rule> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
         if (ruleOpt.isPresent()){
             return ruleOpt.get();
@@ -42,6 +49,11 @@ public class RouteRules {
 
     public RouteRules addRule(Rule rule){
         ruleList.add(rule);
+        return this;
+    }
+
+    public RouteRules addRules(Rule... rules){
+        ruleList.addAll(Arrays.asList(rules));
         return this;
     }
 

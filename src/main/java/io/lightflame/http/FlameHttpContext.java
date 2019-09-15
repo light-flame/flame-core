@@ -1,6 +1,6 @@
 package io.lightflame.http;
 
-import io.lightflame.http.HttpRouteRules.HttpRouteRule;
+import io.lightflame.routerules.RouteRules;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 
@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 public class FlameHttpContext{
 
     private FullHttpRequest req;
-    private HttpRouteRule routeRule;
+    private RouteRules routeRule;
     private FullHttpResponse res;
     private HttpUtils utils;
 
@@ -43,7 +43,7 @@ public class FlameHttpContext{
         this.req = req;
     }
     
-    public FlameHttpContext(FullHttpRequest req, HttpUtils utils, HttpRouteRule routeRule) {
+    public FlameHttpContext(FullHttpRequest req, HttpUtils utils, RouteRules routeRule) {
         this.routeRule = routeRule;
         this.utils = utils;
         this.req = req;

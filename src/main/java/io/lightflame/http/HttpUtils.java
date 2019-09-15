@@ -3,10 +3,11 @@ package io.lightflame.http;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.lightflame.http.HttpRouteRules.HttpRouteRule;
-import io.lightflame.http.HttpRouteRules.RuleEnum;
-import io.lightflame.http.HttpRouteRules.HttpRouteRule.PathRule;
-import io.lightflame.http.HttpRouteRules.HttpRouteRule.PrefixPathRule;
+import io.lightflame.routerules.HttpPathRule;
+import io.lightflame.routerules.HttpPrefixPathRule;
+import io.lightflame.routerules.HttpRuleKind;
+import io.lightflame.routerules.RouteRules;
+import io.lightflame.routerules.Rule;
 
 /**
  * HttpUtils
@@ -49,24 +50,23 @@ public class HttpUtils {
         return "";
     }
 
-    
-    public String getPathWithoutPrefix(String uri, HttpRouteRule routeRule){
-        Rule rule = routeRule.getRule(RuleEnum.PREFIX);
+    public String getPathWithoutPrefix(String uri, RouteRules routeRule){
+        Rule rule = routeRule.getRule(HttpRuleKind.PREFIX);
         if (rule == null){
             return "";
         }
-        PrefixPathRule pRule = (PrefixPathRule)rule;
+        HttpPrefixPathRule pRule = (HttpPrefixPathRule)rule;
         return uri.replace(pRule.getPrefix(), "");
     }
 
     // con example: /path/to/my/{url}
     // uri example: /path/to/my/url
-    public String extractUrlParam(String uri, String name, HttpRouteRule routeRule){
-        Rule rule = routeRule.getRule(RuleEnum.PATH);
+    public String extractUrlParam(String uri, String name, RouteRules routeRule){
+        Rule rule = routeRule.getRule(HttpRuleKind.PATH);
         if (rule == null){
             return null;
         }
-        PathRule pRule = (PathRule)rule;
+        HttpPathRule pRule = (HttpPathRule)rule;
         Map<String, Integer> mapUri = this.makeMapUri(pRule.getSegments());
         Integer pathI =  mapUri.get(name);
         uri = uri.split("\\?",0)[0];

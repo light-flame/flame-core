@@ -16,7 +16,7 @@ public class Utils {
 
     static Map<String,String> extractQueryParam(String uri){
         String[] uriP = uri.split("\\?");
-        if (uriP.length != 2) return null;
+        if (uriP.length != 2) return new HashMap<>();
         String qparam = uriP[1];
 
         Map<String,String> qparamMap = new HashMap<>();

@@ -39,6 +39,14 @@ public class HttpPrefixPathRule implements Rule<FullHttpRequest>{
         return true;
     }
 
+    public String getPrefix(){
+        String prefix = "";
+        for (String segm : this.segments){
+            prefix += String.format("%s/", segm);
+        }
+        return prefix;
+    }
+
     @Override
     public RuleKind kind() {
         return HttpRuleKind.PREFIX;

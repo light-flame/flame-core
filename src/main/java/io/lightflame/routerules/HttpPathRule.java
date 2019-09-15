@@ -32,6 +32,10 @@ public class HttpPathRule implements Rule<FullHttpRequest>{
         return true;
     }
 
+    public String[] getSegments(){
+        return this.segments;
+    }
+
     @Override
     public RuleKind kind() {
         return HttpRuleKind.PATH;

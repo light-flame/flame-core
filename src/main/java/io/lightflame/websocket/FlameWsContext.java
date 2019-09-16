@@ -7,7 +7,14 @@ package io.lightflame.websocket;
 public class FlameWsContext {
 
     private String request;
-    // private HttpRouteRule routeRule;
     private String response;
+
+    FlameWsContext(String r){
+        this.request = r;
+    }
+
+    public String getResponse(){
+        return this.response;
+    }
     
 }

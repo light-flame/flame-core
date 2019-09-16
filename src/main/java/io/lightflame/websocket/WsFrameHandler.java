@@ -1,8 +1,6 @@
 
 package io.lightflame.websocket;
 
-import java.util.Locale;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -43,7 +41,19 @@ public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> 
             String uri = ctx.channel().attr(uriAttKey).get();
             // Send the uppercase string back.
             String request = ((TextWebSocketFrame) frame).text();
-            ctx.channel().writeAndFlush(new TextWebSocketFrame(request.toUpperCase(Locale.US)));
+
+            WsRequestWrapper wrapper = new WsRequestWrapper(request, uri);
+
+            try {
+                FlameWsContext flameCtx = new FlameWsStore().runFunctionByRequest(wrapper);
+                ctx.channel().writeAndFlush(new TextWebSocketFrame(flameCtx.getResponse()));
+            }catch(Exception e){
+                ExceptionWsFunction fExc =  new FlameWsExceptionStore().getFunction(e);
+                fExc.call(e);
+            }
+
+
+
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);

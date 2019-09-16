@@ -47,19 +47,19 @@ public class RouteRules {
 
     
 
-    public RouteRules addRule(Rule rule){
+    public RouteRules addRule(Rule<?> rule){
         ruleList.add(rule);
         return this;
     }
 
-    public RouteRules addRules(Rule... rules){
+    public RouteRules addRules(Rule<?>... rules){
         ruleList.addAll(Arrays.asList(rules));
         return this;
     }
 
     int score(){
         int score = 0;
-        for (Rule rule : ruleList){
+        for (Rule<?> rule : ruleList){
             score += rule.score();
         }
         return score;
@@ -67,7 +67,7 @@ public class RouteRules {
 
     @SuppressWarnings("unchecked")
     <E> boolean match(E income){            
-        for (Rule rule : ruleList) {
+        for (Rule<E> rule : ruleList) {
             if (!rule.isValid(income)){
                 return false;
             }

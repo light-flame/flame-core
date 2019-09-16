@@ -51,7 +51,7 @@ public class HttpUtils {
     }
 
     public String getPathWithoutPrefix(String uri, RouteRules routeRule){
-        Rule rule = routeRule.getRule(HttpRuleKind.PREFIX);
+        Rule<?> rule = routeRule.getRule(HttpRuleKind.PREFIX);
         if (rule == null){
             return "";
         }
@@ -62,7 +62,7 @@ public class HttpUtils {
     // con example: /path/to/my/{url}
     // uri example: /path/to/my/url
     public String extractUrlParam(String uri, String name, RouteRules routeRule){
-        Rule rule = routeRule.getRule(HttpRuleKind.PATH);
+        Rule<?> rule = routeRule.getRule(HttpRuleKind.PATH);
         if (rule == null){
             return null;
         }

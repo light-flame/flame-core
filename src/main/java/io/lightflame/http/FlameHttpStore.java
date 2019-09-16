@@ -2,7 +2,6 @@ package io.lightflame.http;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import io.lightflame.routerules.HttpMethodRule;
 import io.lightflame.routerules.HttpPathRule;
@@ -55,7 +54,7 @@ public class FlameHttpStore {
         return this;
     }
 
-    private String addRouteRule(Rule... rules){
+    private String addRouteRule(Rule<?>... rules){
         return new RouteStore<FullHttpRequest>().addRouteRule(
             new RouteRules(StoreKind.HTTP_STORE)
                 .addRules(rules)
@@ -63,16 +62,16 @@ public class FlameHttpStore {
     }
 
     public void httpGET(String url, FlameHttpFunction function){
-        Rule pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
-        Rule methodRule = new HttpMethodRule(HttpMethod.GET);
+        Rule<?> pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
+        Rule<?> methodRule = new HttpMethodRule(HttpMethod.GET);
 
         functionMap.put(this.addRouteRule(pathRule, methodRule), function);
     }
 
 
     public void httpPOST(String url, FlameHttpFunction function){
-        Rule pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
-        Rule methodRule = new HttpMethodRule(HttpMethod.POST);
+        Rule<?> pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
+        Rule<?> methodRule = new HttpMethodRule(HttpMethod.POST);
 
         functionMap.put(this.addRouteRule(pathRule, methodRule), function);
     }

@@ -28,6 +28,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 public class FlameHttpStore {
 
     static private Map<String, FlameHttpFunction> functionMap = new HashMap<>();
+    RouteStore rs = new RouteStore();
 
     private String prefix = "";
 
@@ -41,7 +42,7 @@ public class FlameHttpStore {
     public FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
         FlameHttpFunction function = handler404();
 
-        RouteRules routeRules = new RouteStore<FullHttpRequest>().getRouteRules(request, StoreKind.HTTP_STORE);
+        RouteRules routeRules = rs.getRouteRules(request, StoreKind.HTTP_STORE);
         if (routeRules != null) {
             function = functionMap.get(routeRules.getKey());
         }
@@ -55,7 +56,7 @@ public class FlameHttpStore {
     }
 
     private String addRouteRule(Rule<?>... rules){
-        return new RouteStore<FullHttpRequest>().addRouteRule(
+        return rs.addRouteRule(
             new RouteRules(StoreKind.HTTP_STORE)
                 .addRules(rules)
         );

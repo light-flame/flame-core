@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * RuleUtil
  */
-public class RouteStore<E> {
+public class RouteStore {
 
     static private List<RouteRules> routeRules = new ArrayList<>();
 
@@ -21,7 +21,7 @@ public class RouteStore<E> {
         return routeRule.getKey();
     }
 
-    public RouteRules getRouteRules(E income, StoreKind store){
+    public <E> RouteRules getRouteRules(E income, StoreKind store){
         Optional<RouteRules> optRule =  routeRules
             .stream()
             .filter(x -> x.getStore().equals(store))

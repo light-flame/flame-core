@@ -9,11 +9,11 @@ import java.util.UUID;
 /**
  * RuleUtil
  */
-public class RouteStore {
+abstract public class RouteStore<E> {
 
-    static private List<RouteRules> routeRules = new ArrayList<>();
+    private List<RouteRules<E>> routeRules = new ArrayList<>();
 
-    public String addRouteRule(RouteRules routeRule){
+    public String addRouteRule(RouteRules<E> routeRule){
         if (routeRule.getKey() == null){
             routeRule.setKey(UUID.randomUUID().toString());
         }
@@ -21,15 +21,26 @@ public class RouteStore {
         return routeRule.getKey();
     }
 
-    public <E> RouteRules getRouteRules(E income, StoreKind store){
-        Optional<RouteRules> optRule =  routeRules
+    public RouteRules<E> getRouteRules(E income){
+        Optional<RouteRules<E>> optRule =  this.routeRules
             .stream()
-            .filter(x -> x.getStore().equals(store))
             .filter(x -> x.match(income))
-            .max(Comparator.comparing((RouteRules r) -> r.score()));
+            .max(Comparator.comparing((RouteRules<E> r) -> r.score()));
         if (!optRule.isPresent()){
             return null;
         }
         return optRule.get();    
     }
+
+    public RouteStore<E> addRuleToStore(String key, Rule<E> rule){
+        Optional<RouteRules<E>> optRule =  this.routeRules
+            .stream()
+            .filter(x -> x.getKey().equals(key))
+            .findFirst();
+        if (optRule.isPresent()){
+            optRule.get().addRule(rule);
+        }
+        return this;
+    }
+
 }

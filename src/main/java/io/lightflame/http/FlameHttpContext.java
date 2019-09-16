@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
 public class FlameHttpContext{
 
     private FullHttpRequest req;
-    private RouteRules routeRule;
+    private RouteRules<FullHttpRequest> routeRule;
     private FullHttpResponse res;
     private HttpUtils utils;
 
@@ -43,7 +43,7 @@ public class FlameHttpContext{
         this.req = req;
     }
     
-    public FlameHttpContext(FullHttpRequest req, HttpUtils utils, RouteRules routeRule) {
+    public FlameHttpContext(FullHttpRequest req, HttpUtils utils, RouteRules<FullHttpRequest> routeRule) {
         this.routeRule = routeRule;
         this.utils = utils;
         this.req = req;

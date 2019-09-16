@@ -8,6 +8,7 @@ import io.lightflame.routerules.HttpPrefixPathRule;
 import io.lightflame.routerules.HttpRuleKind;
 import io.lightflame.routerules.RouteRules;
 import io.lightflame.routerules.Rule;
+import io.netty.handler.codec.http.FullHttpRequest;
 
 /**
  * HttpUtils
@@ -50,7 +51,7 @@ public class HttpUtils {
         return "";
     }
 
-    public String getPathWithoutPrefix(String uri, RouteRules routeRule){
+    public String getPathWithoutPrefix(String uri, RouteRules<FullHttpRequest> routeRule){
         Rule<?> rule = routeRule.getRule(HttpRuleKind.PREFIX);
         if (rule == null){
             return "";
@@ -61,8 +62,8 @@ public class HttpUtils {
 
     // con example: /path/to/my/{url}
     // uri example: /path/to/my/url
-    public String extractUrlParam(String uri, String name, RouteRules routeRule){
-        Rule<?> rule = routeRule.getRule(HttpRuleKind.PATH);
+    public String extractUrlParam(String uri, String name, RouteRules<FullHttpRequest> routeRule){
+        Rule<FullHttpRequest> rule = routeRule.getRule(HttpRuleKind.PATH);
         if (rule == null){
             return null;
         }

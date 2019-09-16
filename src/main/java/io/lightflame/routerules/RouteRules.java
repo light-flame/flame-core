@@ -9,24 +9,17 @@ import java.util.UUID;
 /**
  * RulesStore
  */
-public class RouteRules {
+public class RouteRules<E> {
 
-    List<Rule> ruleList = new ArrayList<>();
+    List<Rule<E>> ruleList = new ArrayList<>();
     private String key;
-    private StoreKind store;
 
-    public RouteRules(StoreKind s, String k) {
-        this.store = s;
+    public RouteRules(String k) {
         this.key = k;
     }
 
-    public RouteRules(StoreKind s) {
-        this.store = s;
+    public RouteRules() {
         this.key = UUID.randomUUID().toString();
-    }
-
-    StoreKind getStore(){
-        return this.store;
     }
 
     public String getKey(){
@@ -37,8 +30,8 @@ public class RouteRules {
         this.key = k;
     }
 
-    public Rule getRule(RuleKind rk) {
-        Optional<Rule> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
+    public Rule<E> getRule(RuleKind rk) {
+        Optional<Rule<E>> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
         if (ruleOpt.isPresent()){
             return ruleOpt.get();
         }
@@ -47,12 +40,12 @@ public class RouteRules {
 
     
 
-    public RouteRules addRule(Rule<?> rule){
+    public RouteRules<E> addRule(Rule<E> rule){
         ruleList.add(rule);
         return this;
     }
 
-    public RouteRules addRules(Rule<?>... rules){
+    public RouteRules<E> addRules(Rule<E>[] rules){
         ruleList.addAll(Arrays.asList(rules));
         return this;
     }
@@ -65,8 +58,7 @@ public class RouteRules {
         return score;
     }
 
-    @SuppressWarnings("unchecked")
-    <E> boolean match(E income){            
+    boolean match(E income){            
         for (Rule<E> rule : ruleList) {
             if (!rule.isValid(income)){
                 return false;

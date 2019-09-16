@@ -1,4 +1,4 @@
-package io.lightflame.functions;
+package io.lightflame.bootstrap;
 
 import java.util.Optional;
 

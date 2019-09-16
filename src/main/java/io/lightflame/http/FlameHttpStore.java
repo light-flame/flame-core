@@ -1,6 +1,8 @@
 package io.lightflame.http;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.lightflame.routerules.HttpMethodRule;
@@ -28,7 +30,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 public class FlameHttpStore {
 
     static private Map<String, FlameHttpFunction> functionMap = new HashMap<>();
-    RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+    static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
 
     private String prefix = "";
 
@@ -39,7 +41,11 @@ public class FlameHttpStore {
         this.prefix = prefix;
     }
 
-    public FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
+    public BuildRoute R(){
+       return new BuildRoute(prefix);
+    }
+
+    FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
         FlameHttpFunction function = handler404();
 
         RouteRules<FullHttpRequest> routeRules = rs.getRouteRules(request);
@@ -51,34 +57,40 @@ public class FlameHttpStore {
         return function.chain(ctx);
     }
 
+    public class BuildRoute{
+
+        private String prefix;
+        private List<Rule<FullHttpRequest>> rules = new ArrayList<>();
+
+        BuildRoute(String p){
+            this.prefix = p;
+        }
+
+        private String addToStore(String url){
+            rules.add((url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url));
+            return rs.addRouteRule(
+                new RouteRules<FullHttpRequest>()
+                    .addRules(rules)
+            );
+        }
+
+        public void httpGET(String url, FlameHttpFunction function){
+            rules.add(new HttpMethodRule(HttpMethod.GET));
+            functionMap.put(this.addToStore(url), function);
+        }
+    
+        public void httpPOST(String url, FlameHttpFunction function){
+            rules.add(new HttpMethodRule(HttpMethod.POST));
+    
+            functionMap.put(this.addToStore(url), function);
+        }
+    }
+
     public FlameHttpStore addHeaderRyle(){
         return this;
     }
 
-    private String addRouteRule(Rule<FullHttpRequest>[] rules){
-        return rs.addRouteRule(
-            new RouteRules<FullHttpRequest>()
-                .addRules(rules)
-        );
-    }
 
-    public void httpGET(String url, FlameHttpFunction function){
-        Rule<FullHttpRequest> pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
-        Rule<FullHttpRequest> methodRule = new HttpMethodRule(HttpMethod.GET);
-
-        Rule<FullHttpRequest>[] ruleArray = new Rule[]{pathRule, methodRule};
-
-        functionMap.put(this.addRouteRule(ruleArray), function);
-    }
-
-
-    public void httpPOST(String url, FlameHttpFunction function){
-        Rule<FullHttpRequest> pathRule = (url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url);
-        Rule<FullHttpRequest> methodRule = new HttpMethodRule(HttpMethod.POST);
-        Rule<FullHttpRequest>[] ruleArray = new Rule[]{pathRule, methodRule};
-
-        functionMap.put(this.addRouteRule(ruleArray), function);
-    }
 
     private FlameHttpFunction handler404() {
         return (ctx) -> {

@@ -50,6 +50,11 @@ public class RouteRules<E> {
         return this;
     }
 
+    public RouteRules<E> addRules(List<Rule<E>> rules){
+        ruleList.addAll(rules);
+        return this;
+    }
+
     int score(){
         int score = 0;
         for (Rule<?> rule : ruleList){

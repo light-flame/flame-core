@@ -18,6 +18,10 @@ public class HttpPrefixPathRule implements Rule<FullHttpRequest>{
     public boolean isValid(FullHttpRequest req) {
         String[] incomeSegms =  Utils.extractSegments(req.uri());
 
+        if (this.segments.length == 1 && this.segments[0].equals("")){
+            return true;
+        }
+
         if (incomeSegms.length < segments.length){
             return false;
         }
@@ -54,6 +58,9 @@ public class HttpPrefixPathRule implements Rule<FullHttpRequest>{
 
     @Override
     public int score() {
+        if (this.segments.length == 1 && this.segments[0].equals("")){
+            return 0;
+        }
         return this.segments.length;
     }
 

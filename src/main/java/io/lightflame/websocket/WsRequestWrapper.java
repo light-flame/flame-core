@@ -20,5 +20,12 @@ public class WsRequestWrapper {
         return request;
     }
 
+    /**
+     * @return the uri
+     */
+    public String getUri() {
+        return uri;
+    }
+
     
 }

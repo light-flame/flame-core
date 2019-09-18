@@ -138,4 +138,27 @@ public class HttpRouteRulesTest {
         request.headers().set("x-auth", "abc");
         assertEquals("2", rs.getRouteRules(request).getKey());
     }
+
+    @Test
+    public void testcase3(){
+
+        RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+
+        rs.addRouteRule(
+            new RouteRules<FullHttpRequest>("1")
+                .addRule(new HttpPrefixPathRule("/*"))
+        );
+
+
+
+        FullHttpRequest request;
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
+        assertEquals("1", rs.getRouteRules(request).getKey());
+
+        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/abcd");
+        assertEquals("1", rs.getRouteRules(request).getKey());
+
+
+    }
 }

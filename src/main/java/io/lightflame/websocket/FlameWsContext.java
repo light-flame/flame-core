@@ -13,8 +13,18 @@ public class FlameWsContext {
         this.request = r;
     }
 
-    public String getResponse(){
-        return this.response;
+    /**
+     * @param response the response to set
+     */
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
+    /**
+     * @return the response
+     */
+    String getResponse() {
+        return response;
     }
     
 }

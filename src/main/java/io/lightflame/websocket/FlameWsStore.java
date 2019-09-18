@@ -1,10 +1,14 @@
 package io.lightflame.websocket;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.lightflame.routerules.RouteRules;
 import io.lightflame.routerules.RouteStore;
+import io.lightflame.routerules.Rule;
+import io.lightflame.routerules.WsPathRule;
 
 /**
  * FlameWebSocketStore
@@ -24,5 +28,26 @@ public class FlameWsStore {
 
         FlameWsContext ctx = new FlameWsContext(wrapper.getRequest());
         return function.chain(ctx);
+    }
+
+    public BuildRoute R(){
+        return new BuildRoute();
+     }
+
+    public class BuildRoute{
+
+        private List<Rule<WsRequestWrapper>> rules = new ArrayList<>();
+
+        private String addToStore(String url){
+            rules.add(new WsPathRule(url));
+            return rs.addRouteRule(
+                new RouteRules<WsRequestWrapper>()
+                    .addRules(rules)
+            );
+        }
+
+        public void path(String url, FlameWsFunction function){
+            functionMap.put(this.addToStore(url), function);
+        }
     }
 }

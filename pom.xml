@@ -6,11 +6,24 @@
 
   <groupId>io.lightflame</groupId>
   <artifactId>lightflame-web</artifactId>
-  <version>0.9.0-SNAPSHOT</version>
+  <version>0.9.1</version>
 
   <name>light-flame</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://github.com/light-flame</url>
+  <description>Full web framework</description>
+
+
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://svn.apache.org/viewvc/maven</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,11 +58,11 @@
       <version>1.2.17</version>
     </dependency>
 
-  <dependency>
-    <groupId>io.netty</groupId>
-    <artifactId>netty-all</artifactId>
-    <version>4.1.24.Final</version>
-</dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-all</artifactId>
+      <version>4.1.24.Final</version>
+    </dependency>
 
 
     <!-- https://mvnrepository.com/artifact/org.jgroups/jgroups -->

@@ -3,6 +3,7 @@ package io.lightflame.bootstrap;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
+import org.apache.log4j.varia.NullAppender;
 
 /**
  * LightFlame
@@ -10,6 +11,7 @@ import org.apache.log4j.Logger;
 public class LightFlame {
 
     private static final Logger LOGGER = Logger.getLogger(LightFlame.class);
+    private Logger rootLogger = Logger.getRootLogger();
     private int port = 8080;
 
     public LightFlame runConfiguration(ConfigFunction configFunction, Config config){
@@ -22,8 +24,16 @@ public class LightFlame {
         return this;
     }
 
+    public LightFlame addBasicLog4jConfig(){
+        BasicConfigurator.configure();
+        return this;
+    }
+
     public void start(Class<?> clazz) {     
-        BasicConfigurator.configure();   
+        if (!rootLogger.getAllAppenders().hasMoreElements()) {
+            rootLogger.addAppender(new NullAppender());
+        } 
+        
         LOGGER.info("Light-flame staring at port 8080");
         WebConfig.start(port);
     

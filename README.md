@@ -5,25 +5,15 @@ Ligth flame is a modern Era ultra **light height web framework** based on netty 
 If you want to configure all by yourself, and have all control of your code, business logical without infer directly with the framework, so, light flame its perfectly made for you. We also encourage you to use it In a way that your code could be totally readable and decouple from the infra parts.
 
 
-- low level, low abstraction , high performance, compile and start time
-
-- Composite everywhere and everything, its functions babe!
-
-- microservices mindset, without application services
-
-- high configurability, on and during running time
-
+- low level, low abstraction , high performance, fast compile and start time
+- Composite everywhere and everything, **its functions babe!**
+- microservices mindset, without application services (no tomcat, jboss....)
+- high configurability, before and during running time
 - testing everything, intregrate tests as pure functions
-
 - no mixing between domain and infra
-
-- made for you who like... Guess what?! Functions and DDD as a code principle
-
-- reactive non blocking
-
-- non reflections, non annotations
-
-- do whatever you want, we are on the ground
+- reactive non blocking IO
+- non reflections, annotations free (thanks god!!)
+- do whatever you want, we are on the ground =P
 
  
 You can have some of our boiler plates example of projects using our engine and some principles of DDD, and microservices structure. I hope you enjoy, use it and help us to improve even more this simple code.

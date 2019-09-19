@@ -33,14 +33,20 @@ Using maven, declare dependency:
 
 
 ```java
-public  static  void  main( String[] args ) {
+package com.init;
 
-new  LightFlame()
-	.runConfiguration(new  HandlerConfig().setDefautHandlers(), null)
-	.port(8080)
-	.start(App.class, args);
+import io.lightflame.bootstrap.LightFlame;
 
+public class App 
+{
+    public static void main( String[] args )
+    {
+        new LightFlame()
+            .port(8080)
+            .start(App.class);
+    }
 }
+
 ```
 
 create a class that contain the configuration function, in this example, HandleConfig:

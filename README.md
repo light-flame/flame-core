@@ -1,4 +1,4 @@
-# Light Flame
+# Light flame
 
 Ligth flame is a modern Era ultra **light height web framework** based on netty and made for people who like to have more control over the application, since the input of the data entrance, to the output. Everything is highly configurable... So, if you are used to frameworks that make all the things for you like DI, handlers, services and repositories and all the stuffs with a lot of annotations and like it, light flame insn't for you.
 
@@ -51,35 +51,51 @@ public class App
 
 create a class that contain the configuration function, in this example, HandleConfig:
 ```java
-public  class  HandlerConfig {
+package com.init;
 
-	public  ConfigFunction  setDefautHandlers() {
-		return (config) -> {
-			MyHandler  handler  =  new  MyHandler();
-			
-			// flame store
-			FlameHttpStore  fs  =  new  FlameHttpStore("/api");
-			fs.R().httpGET("/*", handler.genericRoute());
-			fs.R().httpGET("/hello", handler.helloRoute());
-			return  null;
-		};
-	}
+import io.lightflame.bootstrap.ConfigFunction;
+import io.lightflame.http.FlameHttpStore;
+
+public class HandlerConfig {
+
+    public ConfigFunction setDefautHandlers() {
+        return (config) -> {
+            Handler handler = new Handler();
+
+            // flame store
+            FlameHttpStore fs =  new FlameHttpStore("/api");
+
+            fs.R().httpGET("/hello/world/simple", handler.simpleGreeting());
+
+            return null;
+        };
+    }
 }
 ```
 Now you can declare the simple handler:
 ```java
-public  class  MyHandler {
+package com.init;
 
-	public  FlameHttpFunction  helloRoute() {
-		return (ctx) -> {
-			// do somethings
-			return  ctx.setResponse(new  DefaultFullHttpResponse(
-				HttpVersion.HTTP_1_1, 						
-				HttpResponseStatus.OK,
-				Unpooled.copiedBuffer(staticFile, CharsetUtil.UTF_8))
-			);
-		};
-	}
+import io.lightflame.http.FlameHttpFunction;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
+
+public class Handler {
+
+    public FlameHttpFunction simpleGreeting() {
+        return (ctx) -> {
+            String name = ctx.getRequest().content().toString(CharsetUtil.UTF_8);
+            String greeting = String.format("hello %s", name);
+            return ctx.setResponse(new DefaultFullHttpResponse(
+                HttpVersion.HTTP_1_1,
+                HttpResponseStatus.OK, 
+                Unpooled.copiedBuffer(greeting, CharsetUtil.UTF_8)
+            ));
+        };
+    }
 }
 ```
 
@@ -88,27 +104,35 @@ public  class  MyHandler {
 There is a bunch of existing rules that you can to route to your handler. The **FlameHttpStore** provides a way to store your functions and generate the rule for all.
 
 ```java
-public  class  HandlerConfig {
+package com.routing;
 
-	public  ConfigFunction  setDefautHandlers() {
-		return (config) -> {
-			MyHandler  handler  =  new  MyHandler();
-			
-			// flame store
-			FlameHttpStore  fs  =  new  FlameHttpStore("/api");
-			fs.R().httpGET("/*", handler.genericRoute()); // widecard route
-			fs.R().httpGET("/path/to/my/url", handler.helloRoute());
-			fs.R().httpGET("/hello/{name}", handler.helloDynamic()); // dynamic route
-			fs.R().httpPOST("/this/is/a/post", handler.postRouter());
-			// complex filters
-			fs.R()
-				.headerRule("x-auth":"abc")
-				.queryRule("name":"daniel")
-				.pathRule("name":"daniel")
-				.httpALL("/*", handler.complexRoute());
-			return  null;
-		};
-	}
+import io.lightflame.bootstrap.ConfigFunction;
+import io.lightflame.http.FlameHttpStore;
+
+public class HandlerConfig {
+
+    public ConfigFunction setDefautHandlers() {
+        return (config) -> {
+            Handler handler = new Handler();
+
+
+            // flame store
+            FlameHttpStore  fs  =  new  FlameHttpStore("/api");
+
+            fs.R().httpGET("/*", handler.simpleGreeting()); // widecard route
+            fs.R().httpGET("/path/to/my/url", handler.simpleGreeting());
+            fs.R().httpGET("/hello/{name}", handler.simpleGreeting()); // dynamic route
+            fs.R().httpPOST("/this/is/a/post", handler.simpleGreeting());
+            // complex filters
+            fs.R()
+                .headerRule("x-auth","abc")
+                .queryRule("name","daniel")
+                .pathRule("name","daniel")
+                .httpALL("/*", handler.simpleGreeting());
+
+            return null;
+        };
+    }
 }
 ```
 
@@ -117,9 +141,34 @@ TODO: on next release
 
 # Testing
 
-Lightflame provides a simple way to test you application.
+Lightflame provides a simple way to test you application. You can test either if the route works depending on request, and all the steps throw the route.  
 
 ```java
+package com.init;
+
+
+import static org.junit.Assert.assertEquals;
+
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.lightflame.bootstrap.LightFlame;
+import io.lightflame.http.HttpServerHandler;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseDecoder;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
+
+/**
+ * TestingHelloWorld
+ */
+public class TestingHandler {
 
     EmbeddedChannel channel;
 
@@ -136,13 +185,14 @@ Lightflame provides a simple way to test you application.
         new LightFlame()
             .runConfiguration(new HandlerConfig().setDefautHandlers(), null);
     }
-    
+
     @Test
-    public void wideCardUrl(){
+    public void simpleHelloWorld(){
         FullHttpRequest httpRequest = new DefaultFullHttpRequest(
                 HttpVersion.HTTP_1_1, 
                 HttpMethod.GET, 
-                "/api/hello/with/generic?what=world"
+                "/api/hello/world/simple",
+                Unpooled.copiedBuffer("world", CharsetUtil.UTF_8)
         );
         channel.writeInbound(httpRequest);
 
@@ -150,5 +200,8 @@ Lightflame provides a simple way to test you application.
         FullHttpResponse ctx = channel.readOutbound();
         String msg = ctx.content().toString(CharsetUtil.UTF_8);
         assertEquals(msg.equals("hello world"), true);
+
     }
+
+}
 ```

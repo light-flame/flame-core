@@ -74,6 +74,21 @@ public class FlameHttpStore {
             );
         }
 
+        public BuildRoute headerRule(String key, String value){
+            return this;
+        }
+
+        public BuildRoute queryRule(String key, String value){
+            return this;
+        }     
+
+        public BuildRoute pathRule(String key, String value){
+            return this;
+        }    
+
+        public void httpALL(String url, FlameHttpFunction function){
+        }    
+
         public void httpGET(String url, FlameHttpFunction function){
             rules.add(new HttpMethodRule(HttpMethod.GET));
             functionMap.put(this.addToStore(url), function);

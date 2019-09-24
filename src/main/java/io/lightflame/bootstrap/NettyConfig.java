@@ -2,15 +2,14 @@ package io.lightflame.bootstrap;
 
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.lightflame.nsqconsumer.NsqConsumerHandler;
 import io.lightflame.tcp.TcpHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -20,9 +19,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 /**
  * NettyConfig
@@ -31,68 +27,148 @@ public class NettyConfig {
 
     private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private static EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private static List<Listener> listeners = new ArrayList<>();
 
-    private static ChannelFuture futureCh;
-    private static Map<Integer, Listener> portMap = new HashMap<>();
-
-    public enum Listener{
-        HTTP_WS,TCP_SERVER,NSQ_CONSUMER
-    }
-
-    static public Integer getAvaliablePort(Listener value){
-        
-        for (Entry<Integer, Listener> ks : portMap.entrySet()){
-            if (ks.getValue().equals(value)){
-                return ks.getKey();
+    static public Integer getAvaliablePort(ListenerKind lk){
+        for (Listener listener : listeners){
+            if (listener.kind().equals(lk)){
+                return listener.port();
             }
         }
         return null;
     }
+
+    public enum ListenerKind{
+        HTTP_WS,TCP_SERVER,NSQ_CONSUMER
+    }
+
+
+    interface Listener{
+        void bind() throws InterruptedException;
+        void sync()throws InterruptedException;
+        Integer port();
+        ListenerKind kind();
+    }
+
+    static public class HttpWsServerListener implements Listener{
+        private ServerBootstrap serverBs;
+        private Integer port;
+        private Channel ch;
+
+        HttpWsServerListener(ServerBootstrap sb, Integer p){
+            this.serverBs = sb;
+            this.port = p;
+        }
+
+        @Override
+        public void bind() throws InterruptedException {
+            this.ch = serverBs.bind(this.port).sync().channel();
+        }
+
+        @Override
+        public void sync()throws InterruptedException {
+            this.ch.closeFuture().sync();
+        }
+
+        @Override
+        public ListenerKind kind() {
+            return ListenerKind.HTTP_WS;
+        }
+
+        @Override
+        public Integer port() {
+            return this.port;
+        }
+    }
+    static public class TcpServerListener implements Listener{
+        private ServerBootstrap serverBs;
+        private Integer port;
+        private Channel ch;
+
+        TcpServerListener(ServerBootstrap sb, Integer p){
+            this.serverBs = sb;
+            this.port = p;
+        }
+
+        @Override
+        public void bind() throws InterruptedException {
+            this.ch = serverBs.bind(this.port).sync().channel();
+        }
+
+        @Override
+        public void sync()throws InterruptedException {
+            this.ch.closeFuture().sync();
+        } 
+
+        @Override
+        public ListenerKind kind() {
+            return ListenerKind.TCP_SERVER;
+        }
+
+        @Override
+        public Integer port() {
+            return this.port;
+        }
+    }
+
+    static public class NsqConsumerListener implements Listener{
+        private Bootstrap cb;
+        private Integer port;
+        private Channel ch;
+
+        NsqConsumerListener(Bootstrap cb, Integer p){
+            this.cb = cb;
+            this.port = p;
+        }
+
+        @Override
+        public void bind() throws InterruptedException {
+            this.ch = cb.bind(this.port).sync().channel();
+        }
+
+        @Override
+        public void sync()throws InterruptedException {
+            this.ch.closeFuture().sync();
+        }
+
+        @Override
+        public ListenerKind kind() {
+            return ListenerKind.NSQ_CONSUMER;
+        }
+
+        @Override
+        public Integer port() {
+            return this.port;
+        }
+        
+    }
+
     
 
     static void newHttpWsListener(int port){
-        if (portMap.containsKey(port)){
-            return;
-        }
-        try {
-            ServerBootstrap http = new ServerBootstrap();
-            http.option(ChannelOption.SO_BACKLOG, 1024);
-            http.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new PipelineFactory(null));
-    
-            futureCh = http.bind(port);
-            portMap.put(port, Listener.HTTP_WS);
-        } catch (Exception e) {
-            
-        }
+        ServerBootstrap http = new ServerBootstrap();
+        http.option(ChannelOption.SO_BACKLOG, 1024);
+        http.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.INFO))
+                .childHandler(new PipelineFactory(null));
+                listeners.add(new HttpWsServerListener(http, port));
     }
 
     static void newServerTcpChannel(String host, int port){
-        if (portMap.containsKey(port)){
-            return;
-        }
-        try {
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(bossGroup);
-            serverBootstrap.channel(NioServerSocketChannel.class);
-            serverBootstrap.localAddress(new InetSocketAddress(host, port));
-        
-            serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-                protected void initChannel(SocketChannel socketChannel) throws Exception {
-                    socketChannel.pipeline().addLast(new TcpHandler());
-                }
-            });
-            futureCh = serverBootstrap.bind();
-            portMap.put(port, Listener.TCP_SERVER);
-        }catch (Exception e){
-        }
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(bossGroup);
+        serverBootstrap.channel(NioServerSocketChannel.class);
+        serverBootstrap.localAddress(new InetSocketAddress(host, port));
+    
+        serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                socketChannel.pipeline().addLast(new TcpHandler());
+            }
+        });
+        listeners.add(new TcpServerListener(serverBootstrap, port));
     }
 
     static void newNsqConsumer(String host, int port){
-        if (portMap.containsKey(port)){
-            return;
-        }
         try {
             Bootstrap clientBootstrap = new Bootstrap();
 
@@ -104,8 +180,7 @@ public class NettyConfig {
                     socketChannel.pipeline().addLast(new NsqConsumerHandler());
                 }
             });
-            futureCh = clientBootstrap.connect().sync();
-            portMap.put(port, Listener.NSQ_CONSUMER);
+            listeners.add(new NsqConsumerListener(clientBootstrap, port));
         }catch (Exception e){
             System.err.println(e);
         }
@@ -116,28 +191,19 @@ public class NettyConfig {
 
     static void start() {
         
-        SslContext sslCtx;
         try {
-            if (SSL) {
-                SelfSignedCertificate ssc = new SelfSignedCertificate();
-                sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-            } else {
-                sslCtx = null;
+            for (Listener listener : listeners){
+                listener.bind();
             }
-
-            try {
-                if (futureCh != null){
-                    futureCh.channel().closeFuture().sync();
-                }
-                // ch2.closeFuture().sync();
-            } finally {
-                bossGroup.shutdownGracefully();
-                workerGroup.shutdownGracefully();
+            for (Listener listener : listeners){
+                listener.sync();
             }
-            }catch(Exception e){}
-       
+        }catch(Exception e){
 
-
+        }finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
 
     }
 }

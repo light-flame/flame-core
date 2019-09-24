@@ -1,7 +1,5 @@
 package io.lightflame.routerules;
 
-import io.netty.handler.codec.Headers;
-import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.FullHttpRequest;
 
 /**

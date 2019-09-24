@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.lightflame.bootstrap.NettyConfig;
-import io.lightflame.bootstrap.NettyConfig.Listener;
+import io.lightflame.bootstrap.NettyConfig.ListenerKind;
 import io.lightflame.routerules.HttpMethodRule;
 import io.lightflame.routerules.HttpPathRule;
 import io.lightflame.routerules.HttpPortRule;
@@ -39,12 +39,12 @@ public class FlameHttpStore {
     private Integer port;
 
     public FlameHttpStore() {
-        this.port = NettyConfig.getAvaliablePort(Listener.HTTP_WS);
+        this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
     }
 
     public FlameHttpStore(String prefix) {
         this.prefix = prefix;
-        this.port = NettyConfig.getAvaliablePort(Listener.HTTP_WS);
+        this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
     }
 
     public FlameHttpStore(int port, String prefix) {

@@ -1,14 +1,10 @@
 package io.lightflame.bootstrap;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 
-import io.netty.channel.Channel;
 
 /**
  * LightFlame
@@ -17,7 +13,6 @@ public class LightFlame {
 
     private static final Logger LOGGER = Logger.getLogger(LightFlame.class);
     private Logger rootLogger = Logger.getRootLogger();
-    private List<Channel> channels = new ArrayList<>();
 
     public LightFlame runConfiguration(ConfigFunction configFunction, Config config){
         configFunction.setup(config);
@@ -30,13 +25,15 @@ public class LightFlame {
         return this;
     }
 
-    public LightFlame addChannel(Channel ch){
-        this.channels.add(ch);
-        return this;
-    }
     
-    static public Channel newHttpChannel(int port){
-        return NettyConfig.newHttpChannel(port);
+    public LightFlame addHttpAndWsListener(int port){
+        NettyConfig.newHttpWsListener(port);
+        return this;
+    } 
+
+    public LightFlame addTcpServerListener(String host, int port){
+        NettyConfig.newTcpChannel(host, port);
+        return this;
     } 
 
     public void start(Class<?> clazz) {     
@@ -45,7 +42,7 @@ public class LightFlame {
         } 
         
         LOGGER.info("Light-flame staring at port 8080");
-        NettyConfig.start(channels);
+        NettyConfig.start();
     
     }
 }

@@ -13,7 +13,6 @@ public class NsqConsumerHandler extends SimpleChannelInboundHandler<ByteBuf>{
 
     @Override
     public void channelActive(ChannelHandlerContext ctx){
-        System.out.println("sending to client!!!!!!");
         ctx.writeAndFlush(Unpooled.copiedBuffer("  V2", CharsetUtil.UTF_8));
     }
 
@@ -22,7 +21,6 @@ public class NsqConsumerHandler extends SimpleChannelInboundHandler<ByteBuf>{
         String msg = in.toString(CharsetUtil.UTF_8);
         System.out.println(msg);
         if (msg.contains("heartbeat")){
-            System.out.println("sending NOP");
             ctx.writeAndFlush(Unpooled.copiedBuffer("NOP\n", CharsetUtil.UTF_8));
         }
         System.out.println("Client received: " + in.toString(CharsetUtil.UTF_8));

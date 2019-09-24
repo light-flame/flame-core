@@ -4,14 +4,12 @@ package io.lightflame.bootstrap;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import io.lightflame.nsqconsumer.NsqConsumerHandler;
 import io.lightflame.tcp.TcpHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -34,7 +32,6 @@ public class NettyConfig {
     private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private static EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    private static Channel ch;
     private static ChannelFuture futureCh;
     private static Map<Integer, Listener> portMap = new HashMap<>();
 
@@ -64,7 +61,7 @@ public class NettyConfig {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new PipelineFactory(null));
     
-            ch = http.bind(port).sync().channel();
+            futureCh = http.bind(port).sync();
             portMap.put(port, Listener.HTTP_WS);
         } catch (Exception e) {
             
@@ -129,9 +126,6 @@ public class NettyConfig {
             }
 
             try {
-                if (ch != null){
-                    ch.closeFuture().sync();
-                }
                 if (futureCh != null){
                     futureCh.channel().closeFuture().sync();
                 }

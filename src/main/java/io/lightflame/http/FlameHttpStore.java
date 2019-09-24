@@ -37,6 +37,7 @@ public class FlameHttpStore {
 
     private String prefix = "";
     private Integer port;
+    private FlameHttpFunction custom404 = handler404();
 
     public FlameHttpStore() {
         this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
@@ -52,6 +53,11 @@ public class FlameHttpStore {
         this.port = port;
     }
 
+    public FlameHttpStore add404Function(FlameHttpFunction f){
+        this.custom404 = f;
+        return this;
+    }
+
     public BuildRoute R(){
         if (this.port == null){
             this.port = 8080;
@@ -60,7 +66,7 @@ public class FlameHttpStore {
     }
 
     FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
-        FlameHttpFunction function = handler404();
+        FlameHttpFunction function = this.custom404;
 
         RouteRules<FullHttpRequest> routeRules = rs.getRouteRules(request);
         if (routeRules != null) {

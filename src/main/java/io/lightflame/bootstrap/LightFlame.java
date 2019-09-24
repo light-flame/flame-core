@@ -32,7 +32,7 @@ public class LightFlame {
     } 
 
     public LightFlame addTcpServerListener(String host, int port){
-        NettyConfig.newTcpChannel(host, port);
+        NettyConfig.newServerTcpChannel(host, port);
         return this;
     } 
 

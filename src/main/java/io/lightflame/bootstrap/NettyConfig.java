@@ -2,8 +2,12 @@ package io.lightflame.bootstrap;
 
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
+import io.lightflame.nsqconsumer.NsqConsumerHandler;
 import io.lightflame.tcp.TcpHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -30,11 +34,27 @@ public class NettyConfig {
     private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     private static EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-    private static Channel httpChannel;
-    private static ChannelFuture tcpChannel;
+    private static Channel ch;
+    private static ChannelFuture futureCh;
+    private static Map<Integer, Listener> portMap = new HashMap<>();
+
+    public enum Listener{
+        HTTP_WS,TCP_SERVER,NSQ_CONSUMER
+    }
+
+    static public Integer getAvaliablePort(Listener value){
+        
+        for (Entry<Integer, Listener> ks : portMap.entrySet()){
+            if (ks.getValue().equals(value)){
+                return ks.getKey();
+            }
+        }
+        return null;
+    }
+    
 
     static void newHttpWsListener(int port){
-        if (httpChannel != null){
+        if (portMap.containsKey(port)){
             return;
         }
         try {
@@ -44,14 +64,15 @@ public class NettyConfig {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new PipelineFactory(null));
     
-            httpChannel = http.bind(port).sync().channel();
+            ch = http.bind(port).sync().channel();
+            portMap.put(port, Listener.HTTP_WS);
         } catch (Exception e) {
             
         }
     }
 
-    static void newTcpChannel(String host, int port){
-        if (tcpChannel != null){
+    static void newServerTcpChannel(String host, int port){
+        if (portMap.containsKey(port)){
             return;
         }
         try {
@@ -65,8 +86,31 @@ public class NettyConfig {
                     socketChannel.pipeline().addLast(new TcpHandler());
                 }
             });
-            tcpChannel = serverBootstrap.bind().sync();
+            futureCh = serverBootstrap.bind().sync();
+            portMap.put(port, Listener.TCP_SERVER);
         }catch (Exception e){
+        }
+    }
+
+    static void newNsqConsumer(String host, int port){
+        if (portMap.containsKey(port)){
+            return;
+        }
+        try {
+            Bootstrap clientBootstrap = new Bootstrap();
+
+            clientBootstrap.group(bossGroup);
+            clientBootstrap.channel(NioSocketChannel.class);
+            clientBootstrap.remoteAddress(new InetSocketAddress(host, port));
+            clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
+                protected void initChannel(SocketChannel socketChannel) throws Exception {
+                    socketChannel.pipeline().addLast(new NsqConsumerHandler());
+                }
+            });
+            futureCh = clientBootstrap.connect().sync();
+            portMap.put(port, Listener.NSQ_CONSUMER);
+        }catch (Exception e){
+            System.err.println(e);
         }
     }
 
@@ -85,8 +129,11 @@ public class NettyConfig {
             }
 
             try {
-                if (httpChannel != null){
-                    httpChannel.closeFuture().sync();
+                if (ch != null){
+                    ch.closeFuture().sync();
+                }
+                if (futureCh != null){
+                    futureCh.channel().closeFuture().sync();
                 }
                 // ch2.closeFuture().sync();
             } finally {

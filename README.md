@@ -43,7 +43,7 @@ public class App
     {
         new LightFlame()
             .addBasicLog4jConfig()
-            .addChannel(LightFlame.newHttpChannel(8080))
+            .addHttpAndWsListener(8080)
             .start(App.class);
     }
 }

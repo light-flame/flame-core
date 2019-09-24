@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.lightflame.bootstrap.NettyConfig;
+import io.lightflame.bootstrap.NettyConfig.Listener;
 import io.lightflame.routerules.HttpMethodRule;
 import io.lightflame.routerules.HttpPathRule;
+import io.lightflame.routerules.HttpPortRule;
 import io.lightflame.routerules.HttpPrefixPathRule;
 import io.lightflame.routerules.RouteRules;
 import io.lightflame.routerules.RouteStore;
@@ -33,16 +36,24 @@ public class FlameHttpStore {
     static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
 
     private String prefix = "";
+    private Integer port;
 
     public FlameHttpStore() {
+        this.port = NettyConfig.getAvaliablePort(Listener.HTTP_WS);
     }
 
     public FlameHttpStore(String prefix) {
         this.prefix = prefix;
+        this.port = NettyConfig.getAvaliablePort(Listener.HTTP_WS);
+    }
+
+    public FlameHttpStore(int port, String prefix) {
+        this.prefix = prefix;
+        this.port = port;
     }
 
     public BuildRoute R(){
-       return new BuildRoute(prefix);
+       return new BuildRoute(port, prefix);
     }
 
     FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
@@ -62,8 +73,11 @@ public class FlameHttpStore {
         private String prefix;
         private List<Rule<FullHttpRequest>> rules = new ArrayList<>();
 
-        BuildRoute(String p){
-            this.prefix = p;
+        BuildRoute(Integer port, String prefix){
+            this.prefix = prefix;
+            if (port != null){
+                rules.add(new HttpPortRule(port));
+            }
         }
 
         private String addToStore(String url){

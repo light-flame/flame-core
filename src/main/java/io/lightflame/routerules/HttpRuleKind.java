@@ -8,5 +8,6 @@ public enum HttpRuleKind implements RuleKind{
     PATH,
     PREFIX,
     QPARAM,
-    HEADER
+    HEADER,
+    PORT
 }

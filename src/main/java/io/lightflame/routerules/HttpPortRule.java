@@ -16,6 +16,9 @@ public class HttpPortRule implements Rule<FullHttpRequest>{
     @Override
     public boolean isValid(FullHttpRequest req) {
         String host = req.headers().get("host");
+        if (host == null){
+            return true;
+        }
         String hostPort = host.split(":")[1];
         if (this.port.toString().equals(hostPort)){
             return true;

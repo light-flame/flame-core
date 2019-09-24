@@ -53,7 +53,10 @@ public class FlameHttpStore {
     }
 
     public BuildRoute R(){
-       return new BuildRoute(port, prefix);
+        if (this.port == null){
+            this.port = 8080;
+        }
+        return new BuildRoute(this.port, this.prefix);
     }
 
     FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{

@@ -50,7 +50,7 @@ public class NettyConfig {
         ListenerKind kind();
     }
 
-    static public class HttpWsServerListener implements Listener{
+    static class HttpWsServerListener implements Listener{
         private ServerBootstrap serverBs;
         private Integer port;
         private Channel ch;
@@ -80,7 +80,7 @@ public class NettyConfig {
             return this.port;
         }
     }
-    static public class TcpServerListener implements Listener{
+    static class TcpServerListener implements Listener{
         private ServerBootstrap serverBs;
         private Integer port;
         private Channel ch;
@@ -111,7 +111,7 @@ public class NettyConfig {
         }
     }
 
-    static public class NsqConsumerListener implements Listener{
+    static class NsqConsumerListener implements Listener{
         private Bootstrap cb;
         private Integer port;
         private Channel ch;
@@ -182,7 +182,7 @@ public class NettyConfig {
             });
             listeners.add(new NsqConsumerListener(clientBootstrap, port));
         }catch (Exception e){
-            System.err.println(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -199,7 +199,7 @@ public class NettyConfig {
                 listener.sync();
             }
         }catch(Exception e){
-
+            throw  new RuntimeException(e);
         }finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

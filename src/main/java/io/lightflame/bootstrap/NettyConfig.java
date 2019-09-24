@@ -61,7 +61,7 @@ public class NettyConfig {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     .childHandler(new PipelineFactory(null));
     
-            futureCh = http.bind(port).sync();
+            futureCh = http.bind(port);
             portMap.put(port, Listener.HTTP_WS);
         } catch (Exception e) {
             
@@ -83,7 +83,7 @@ public class NettyConfig {
                     socketChannel.pipeline().addLast(new TcpHandler());
                 }
             });
-            futureCh = serverBootstrap.bind().sync();
+            futureCh = serverBootstrap.bind();
             portMap.put(port, Listener.TCP_SERVER);
         }catch (Exception e){
         }

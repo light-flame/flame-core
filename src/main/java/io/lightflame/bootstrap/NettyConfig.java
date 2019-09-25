@@ -10,6 +10,7 @@ import io.lightflame.tcp.TcpHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -114,7 +115,7 @@ public class NettyConfig {
     static class NsqConsumerListener implements Listener{
         private Bootstrap cb;
         private Integer port;
-        private Channel ch;
+        private ChannelFuture ch;
 
         NsqConsumerListener(Bootstrap cb, Integer p){
             this.cb = cb;
@@ -123,12 +124,12 @@ public class NettyConfig {
 
         @Override
         public void bind() throws InterruptedException {
-            this.ch = cb.bind(this.port).sync().channel();
+            this.ch = cb.connect().sync();
         }
 
         @Override
         public void sync()throws InterruptedException {
-            this.ch.closeFuture().sync();
+            this.ch.channel().closeFuture().sync();
         }
 
         @Override
@@ -169,21 +170,17 @@ public class NettyConfig {
     }
 
     static void newNsqConsumer(String host, int port){
-        try {
-            Bootstrap clientBootstrap = new Bootstrap();
+        Bootstrap clientBootstrap = new Bootstrap();
 
-            clientBootstrap.group(bossGroup);
-            clientBootstrap.channel(NioSocketChannel.class);
-            clientBootstrap.remoteAddress(new InetSocketAddress(host, port));
-            clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
-                protected void initChannel(SocketChannel socketChannel) throws Exception {
-                    socketChannel.pipeline().addLast(new NsqConsumerHandler());
-                }
-            });
-            listeners.add(new NsqConsumerListener(clientBootstrap, port));
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
+        clientBootstrap.group(bossGroup);
+        clientBootstrap.channel(NioSocketChannel.class);
+        clientBootstrap.remoteAddress(new InetSocketAddress(host, port));
+        clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            protected void initChannel(SocketChannel socketChannel) throws Exception {
+                socketChannel.pipeline().addLast(new NsqConsumerHandler());
+            }
+        });
+        listeners.add(new NsqConsumerListener(clientBootstrap, port));
     }
 
     static final boolean SSL = System.getProperty("ssl") != null;

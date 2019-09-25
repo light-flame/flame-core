@@ -46,6 +46,11 @@ public class LightFlame {
         return this;
     } 
 
+    public LightFlame addNsqConsumer(String host, int port){
+        NettyConfig.newNsqConsumer(host, port);
+        return this;
+    } 
+
     public LightFlame addTcpServerListener(String host, int port){
         NettyConfig.newServerTcpChannel(host, port);
         return this;
@@ -70,7 +75,7 @@ public class LightFlame {
             cs.func.setup(cs.conf);
         }
         
-        LOGGER.info("Light-flame staring at port 8080");
+        LOGGER.info("Light-flame staring!");
         NettyConfig.start();
     }
 }

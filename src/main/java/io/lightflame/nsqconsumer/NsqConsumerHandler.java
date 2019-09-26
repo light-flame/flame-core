@@ -1,5 +1,8 @@
 package io.lightflame.nsqconsumer;
 
+import java.util.Queue;
+
+import io.lightflame.nsqconsumer.BufferManager.FrameType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -23,10 +26,15 @@ public class NsqConsumerHandler extends SimpleChannelInboundHandler<ByteBuf>{
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf in) {
-        bufferManager
+        Queue<FrameType> q = bufferManager
             .addBuffer(in)
-            .prepareMessages()
-            .proccessMessages(ctx);
+            .buildQueue()
+            .getQueue();
+
+        while (!q.isEmpty()){
+            FrameType f = q.poll();
+            f.proccess(ctx);
+        }
     }
 
     @Override

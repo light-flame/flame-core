@@ -1,12 +1,8 @@
 package io.lightflame.nsqconsumer;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
-import javax.management.RuntimeErrorException;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -80,9 +76,6 @@ public class BufferManager {
 
     class FrameTypeMessage implements FrameType{
         private ByteBuf msgBuf;
-        private long ts;
-        private String msgId;
-        private String msg;
 
         FrameTypeMessage(ByteBuf b){
             this.msgBuf = b;
@@ -90,11 +83,10 @@ public class BufferManager {
 
         @Override
         public void proccess(ChannelHandlerContext ctx) {
-            this.ts =  msgBuf.readBytes(8).readLong();
+            long ts =  msgBuf.readBytes(8).readLong();
             msgBuf.readBytes(2);
-            this.msgId =  msgBuf.readBytes(16).toString(CharsetUtil.UTF_8);
-
-            this.msg =  msgBuf.toString(CharsetUtil.UTF_8);
+            String msgId =  msgBuf.readBytes(16).toString(CharsetUtil.UTF_8);
+            String msg =  msgBuf.toString(CharsetUtil.UTF_8);
             System.out.println(msg);
             ctx.writeAndFlush(Unpooled.copiedBuffer(String.format("FIN %s\n", msgId), CharsetUtil.UTF_8));
         }
@@ -110,7 +102,7 @@ public class BufferManager {
         return this;
     }
 
-    public BufferManager prepareMessages(){
+    public BufferManager buildQueue(){
         prepareMessage();
         return this;
     }
@@ -145,16 +137,9 @@ public class BufferManager {
         throw new MessageAggregationException("error making msg");
     }
 
-    public void proccessMessages(ChannelHandlerContext ctx){
-       this.proccessMessage(ctx);
+    public Queue<FrameType> getQueue(){
+        return this.frames;
     }
 
-    private void proccessMessage(ChannelHandlerContext ctx){
-        FrameType f =  this.frames.poll();
-        if (f != null){
-            f.proccess(ctx);
-            this.proccessMessage(ctx);
-        }
-    }
     
 }

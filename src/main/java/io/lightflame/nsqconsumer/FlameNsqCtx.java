@@ -21,7 +21,7 @@ public class FlameNsqCtx {
         this.ctx = ctx;
     }
 
-    public void ack(){
+    void ack(){
         ctx.writeAndFlush(Unpooled.copiedBuffer(String.format("FIN %s\n", msgId), CharsetUtil.UTF_8));
     }
 

@@ -8,12 +8,14 @@ public class BasicNsqConfig implements NsqConfig{
     private String host;
     private String topic;
     private String channel;
+    private FlameNsqFunction func;
 
-    public BasicNsqConfig(String host, int port, String topic, String channel){
+    public BasicNsqConfig(String host, int port, String topic, String channel, FlameNsqFunction func){
         this.port = port;
         this.host = host;
         this.channel = channel;
         this.topic = topic;
+        this.func = func;
     }
 
     @Override
@@ -28,6 +30,6 @@ public class BasicNsqConfig implements NsqConfig{
 
     @Override
     public NsqConsumerHandler handler() {
-        return new NsqConsumerHandler(this.topic, this.channel);
+        return new NsqConsumerHandler(this.topic, this.channel, this.func);
     }
 }

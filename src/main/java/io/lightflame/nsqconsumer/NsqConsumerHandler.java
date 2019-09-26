@@ -2,7 +2,6 @@ package io.lightflame.nsqconsumer;
 
 import java.util.Queue;
 
-import io.lightflame.nsqconsumer.BufferManager.FrameType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -14,8 +13,9 @@ public class NsqConsumerHandler extends SimpleChannelInboundHandler<ByteBuf>{
 
     private BufferManager bufferManager;
 
-    public NsqConsumerHandler(String topic, String channel) {
-        bufferManager = new BufferManager(topic, channel);
+
+    public NsqConsumerHandler(String topic, String channel, FlameNsqFunction f) {
+        bufferManager = new BufferManager(topic, channel, f);
     }
 
     @Override

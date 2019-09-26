@@ -19,13 +19,15 @@ public class BufferManager {
     private Integer frameType;
     private ByteBuf buffer = Unpooled.buffer(0);
     private Queue<FrameType> frames = new LinkedList<>();
+    private FlameNsqFunction func;
     private String topic;
     private NsqStep currentStep = NsqStep.MAGIC;
     private String channel;
 
-    public BufferManager(String topic, String channel) {
+    public BufferManager(String topic, String channel, FlameNsqFunction func) {
         this.topic = topic;
         this.channel = channel;
+        this.func = func;
     }
 
     public void addMagic(ChannelHandlerContext ctx){
@@ -47,10 +49,6 @@ public class BufferManager {
         private FrameTypeEnum(int value) {
             this.value = value;
         }
-    }
-
-    interface FrameType{
-        void proccess(ChannelHandlerContext ctx);
     }
     
     class FrameTypeResponse implements FrameType{
@@ -87,8 +85,13 @@ public class BufferManager {
             msgBuf.readBytes(2);
             String msgId =  msgBuf.readBytes(16).toString(CharsetUtil.UTF_8);
             String msg =  msgBuf.toString(CharsetUtil.UTF_8);
-            System.out.println(msg);
-            ctx.writeAndFlush(Unpooled.copiedBuffer(String.format("FIN %s\n", msgId), CharsetUtil.UTF_8));
+
+            try {
+                FlameNsqCtx res = func.chain(new FlameNsqCtx(ts, msgId, msg, ctx));
+                res.ack();
+            }catch (Exception e){
+
+            }
         }
     }
 

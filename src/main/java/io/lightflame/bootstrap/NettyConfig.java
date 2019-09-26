@@ -177,7 +177,7 @@ public class NettyConfig {
         clientBootstrap.remoteAddress(new InetSocketAddress(host, port));
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             protected void initChannel(SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline().addLast(new NsqConsumerHandler());
+                socketChannel.pipeline().addLast(new NsqConsumerHandler("write_test1","ch"));
             }
         });
         listeners.add(new NsqConsumerListener(clientBootstrap, port));

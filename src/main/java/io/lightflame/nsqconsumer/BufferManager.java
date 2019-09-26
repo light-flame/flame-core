@@ -1,0 +1,160 @@
+package io.lightflame.nsqconsumer;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+import javax.management.RuntimeErrorException;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageAggregationException;
+import io.netty.util.CharsetUtil;
+
+/**
+ * BufferManager
+ */
+public class BufferManager {
+
+    private Integer size;
+    private Integer frameType;
+    private ByteBuf buffer = Unpooled.buffer(0);
+    private Queue<FrameType> frames = new LinkedList<>();
+    private String topic;
+    private NsqStep currentStep = NsqStep.MAGIC;
+    private String channel;
+
+    public BufferManager(String topic, String channel) {
+        this.topic = topic;
+        this.channel = channel;
+    }
+
+    public void addMagic(ChannelHandlerContext ctx){
+        ctx.writeAndFlush(Unpooled.copiedBuffer("  V2", CharsetUtil.UTF_8));
+        String sub = String.format("%s %s %s\n", "SUB", this.topic, this.channel);
+        ctx.writeAndFlush(Unpooled.copiedBuffer(sub, CharsetUtil.UTF_8));
+        this.currentStep = NsqStep.SUB;
+    }
+
+    enum NsqStep{
+        MAGIC,SUB,RDY
+    }
+
+    
+    enum FrameTypeEnum {
+        RESPONSE(0), MESSAGE(2);
+
+        private final int value;
+        private FrameTypeEnum(int value) {
+            this.value = value;
+        }
+    }
+
+    interface FrameType{
+        void proccess(ChannelHandlerContext ctx);
+    }
+    
+    class FrameTypeResponse implements FrameType{
+        private ByteBuf msgBuffer;
+
+        FrameTypeResponse(ByteBuf b){
+            this.msgBuffer = b;
+        }
+
+        @Override
+        public void proccess(ChannelHandlerContext ctx) {
+            String finalMsg = msgBuffer.toString(CharsetUtil.UTF_8);
+            if (finalMsg.equals("OK") && currentStep == NsqStep.SUB){
+                ctx.writeAndFlush(Unpooled.copiedBuffer("RDY 100\n", CharsetUtil.UTF_8));
+                return;
+            }
+            if (finalMsg.equals("_heartbeat_")){
+                ctx.writeAndFlush(Unpooled.copiedBuffer("NOP\n", CharsetUtil.UTF_8));
+                return;
+            }
+        }
+    }
+
+    class FrameTypeMessage implements FrameType{
+        private ByteBuf msgBuf;
+        private long ts;
+        private String msgId;
+        private String msg;
+
+        FrameTypeMessage(ByteBuf b){
+            this.msgBuf = b;
+        }
+
+        @Override
+        public void proccess(ChannelHandlerContext ctx) {
+            this.ts =  msgBuf.readBytes(8).readLong();
+            msgBuf.readBytes(2);
+            this.msgId =  msgBuf.readBytes(16).toString(CharsetUtil.UTF_8);
+
+            this.msg =  msgBuf.toString(CharsetUtil.UTF_8);
+            System.out.println(msg);
+            ctx.writeAndFlush(Unpooled.copiedBuffer(String.format("FIN %s\n", msgId), CharsetUtil.UTF_8));
+        }
+    }
+
+    private int messageSize(){
+        return this.size-4;
+    }
+
+
+    public BufferManager addBuffer(ByteBuf in){
+        this.buffer = Unpooled.copiedBuffer(buffer, in);
+        return this;
+    }
+
+    public BufferManager prepareMessages(){
+        prepareMessage();
+        return this;
+    }
+
+    private void prepareMessage(){
+        if (this.buffer.readableBytes() < 8){
+            return;
+        }
+        if (size == null){
+            this.size =  this.buffer.readBytes(4).readInt();
+            this.frameType =  this.buffer.readBytes(4).readInt();
+        }
+        if (this.buffer.readableBytes() < messageSize()){
+            return;
+        }
+
+        ByteBuf msgBuf =  buffer.readBytes(messageSize()).copy();
+
+        if (this.frameType == FrameTypeEnum.RESPONSE.value){
+            this.frames.add(new FrameTypeResponse(msgBuf));
+            this.size = null;
+            this.prepareMessage();
+            return;
+        }
+        if (this.frameType == FrameTypeEnum.MESSAGE.value){
+            this.frames.add(new FrameTypeMessage(msgBuf));
+            this.size = null;
+            this.prepareMessage();
+            return;
+        }
+
+        throw new MessageAggregationException("error making msg");
+    }
+
+    public void proccessMessages(ChannelHandlerContext ctx){
+       this.proccessMessage(ctx);
+    }
+
+    private void proccessMessage(ChannelHandlerContext ctx){
+        FrameType f =  this.frames.poll();
+        if (f != null){
+            f.proccess(ctx);
+            this.proccessMessage(ctx);
+        }
+    }
+    
+}

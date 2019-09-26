@@ -1,6 +1,7 @@
 package io.lightflame.bootstrap;
 
 
+import io.lightflame.nsqconsumer.NsqConfig;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -46,8 +47,8 @@ public class LightFlame {
         return this;
     } 
 
-    public LightFlame addNsqConsumer(String host, int port){
-        NettyConfig.newNsqConsumer(host, port);
+    public LightFlame addNsqConsumer(NsqConfig conf){
+        NettyConfig.newNsqConsumer(conf);
         return this;
     } 
 

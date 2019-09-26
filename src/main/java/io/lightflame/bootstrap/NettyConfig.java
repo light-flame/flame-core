@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.lightflame.nsqconsumer.NsqConfig;
 import io.lightflame.nsqconsumer.NsqConsumerHandler;
 import io.lightflame.tcp.TcpHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -169,18 +170,18 @@ public class NettyConfig {
         listeners.add(new TcpServerListener(serverBootstrap, port));
     }
 
-    static void newNsqConsumer(String host, int port){
+    static void newNsqConsumer(NsqConfig conf){
         Bootstrap clientBootstrap = new Bootstrap();
 
         clientBootstrap.group(bossGroup);
         clientBootstrap.channel(NioSocketChannel.class);
-        clientBootstrap.remoteAddress(new InetSocketAddress(host, port));
+        clientBootstrap.remoteAddress(conf.socketAddress());
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             protected void initChannel(SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline().addLast(new NsqConsumerHandler("write_test1","ch"));
+                socketChannel.pipeline().addLast(conf.handler());
             }
         });
-        listeners.add(new NsqConsumerListener(clientBootstrap, port));
+        listeners.add(new NsqConsumerListener(clientBootstrap, conf.port()));
     }
 
     static final boolean SSL = System.getProperty("ssl") != null;

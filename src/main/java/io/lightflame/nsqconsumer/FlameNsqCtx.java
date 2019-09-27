@@ -1,8 +1,6 @@
 package io.lightflame.nsqconsumer;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.CharsetUtil;
 
 /**
  * FlameNsqCtx
@@ -13,6 +11,7 @@ public class FlameNsqCtx {
     private String msgId;
     private String msg;
     private ChannelHandlerContext ctx;
+    private NsqCommands cmds = new NsqCommands();
 
     FlameNsqCtx(long timeStamp, String msgId, String msg, ChannelHandlerContext ctx) {
         this.timeStamp = timeStamp;
@@ -22,7 +21,7 @@ public class FlameNsqCtx {
     }
 
     void ack(){
-        ctx.writeAndFlush(Unpooled.copiedBuffer(String.format("FIN %s\n", msgId), CharsetUtil.UTF_8));
+        cmds.ack(this.ctx, this.msgId);
     }
 
     public String getMsg() {

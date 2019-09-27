@@ -5,5 +5,8 @@ import java.net.InetSocketAddress;
 public interface NsqConfig {
     InetSocketAddress socketAddress();
     int port();
-    NsqConsumerHandler handler();
+    String channel();
+    String topic();
+    FlameNsqFunction function();
+    int rdy();
 }

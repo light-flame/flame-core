@@ -13,28 +13,29 @@ import io.netty.util.CharsetUtil;
 /**
  * BufferManager
  */
-public class BufferManager {
+public class MessageProcessing {
 
     private Integer size;
     private Integer frameType;
     private ByteBuf buffer = Unpooled.buffer(0);
     private Queue<FrameType> frames = new LinkedList<>();
-    private FlameNsqFunction func;
-    private String topic;
     private NsqStep currentStep = NsqStep.MAGIC;
-    private String channel;
+    private NsqConfig config;
+    private NsqCommands cmds = new NsqCommands();
 
-    public BufferManager(String topic, String channel, FlameNsqFunction func) {
-        this.topic = topic;
-        this.channel = channel;
-        this.func = func;
+    public MessageProcessing(NsqConfig config) {
+        this.config = config;
     }
 
-    public void addMagic(ChannelHandlerContext ctx){
-        ctx.writeAndFlush(Unpooled.copiedBuffer("  V2", CharsetUtil.UTF_8));
-        String sub = String.format("%s %s %s\n", "SUB", this.topic, this.channel);
-        ctx.writeAndFlush(Unpooled.copiedBuffer(sub, CharsetUtil.UTF_8));
+    public MessageProcessing magic(ChannelHandlerContext ctx){
+        cmds.magic(ctx);
+        return this;
+    }
+
+    public MessageProcessing sub(ChannelHandlerContext ctx){
+        cmds.sub(ctx, config);
         this.currentStep = NsqStep.SUB;
+        return this;
     }
 
     enum NsqStep{
@@ -62,11 +63,11 @@ public class BufferManager {
         public void proccess(ChannelHandlerContext ctx) {
             String finalMsg = msgBuffer.toString(CharsetUtil.UTF_8);
             if (finalMsg.equals("OK") && currentStep == NsqStep.SUB){
-                ctx.writeAndFlush(Unpooled.copiedBuffer("RDY 100\n", CharsetUtil.UTF_8));
+                cmds.rdy(ctx, config);
                 return;
             }
             if (finalMsg.equals("_heartbeat_")){
-                ctx.writeAndFlush(Unpooled.copiedBuffer("NOP\n", CharsetUtil.UTF_8));
+                cmds.nop(ctx);
                 return;
             }
         }
@@ -80,17 +81,17 @@ public class BufferManager {
         }
 
         @Override
-        public void proccess(ChannelHandlerContext ctx) {
+        public void proccess(ChannelHandlerContext ctx) throws Exception{
             long ts =  msgBuf.readBytes(8).readLong();
             msgBuf.readBytes(2);
             String msgId =  msgBuf.readBytes(16).toString(CharsetUtil.UTF_8);
             String msg =  msgBuf.toString(CharsetUtil.UTF_8);
 
             try {
-                FlameNsqCtx res = func.chain(new FlameNsqCtx(ts, msgId, msg, ctx));
-                res.ack();
+                FlameNsqCtx res = config.function().chain(new FlameNsqCtx(ts, msgId, msg, ctx));
+                cmds.ack(ctx, msgId);
             }catch (Exception e){
-
+                throw new Exception(e);
             }
         }
     }
@@ -100,12 +101,12 @@ public class BufferManager {
     }
 
 
-    public BufferManager addBuffer(ByteBuf in){
+    public MessageProcessing addBuffer(ByteBuf in){
         this.buffer = Unpooled.copiedBuffer(buffer, in);
         return this;
     }
 
-    public BufferManager buildQueue(){
+    public MessageProcessing buildQueue(){
         prepareMessage();
         return this;
     }

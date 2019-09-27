@@ -170,18 +170,18 @@ public class NettyConfig {
         listeners.add(new TcpServerListener(serverBootstrap, port));
     }
 
-    static void newNsqConsumer(NsqConfig conf){
+    static void newNsqConsumer(NsqConfig config){
         Bootstrap clientBootstrap = new Bootstrap();
 
         clientBootstrap.group(bossGroup);
         clientBootstrap.channel(NioSocketChannel.class);
-        clientBootstrap.remoteAddress(conf.socketAddress());
+        clientBootstrap.remoteAddress(config.socketAddress());
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             protected void initChannel(SocketChannel socketChannel) throws Exception {
-                socketChannel.pipeline().addLast(conf.handler());
+                socketChannel.pipeline().addLast(new NsqConsumerHandler(config));
             }
         });
-        listeners.add(new NsqConsumerListener(clientBootstrap, conf.port()));
+        listeners.add(new NsqConsumerListener(clientBootstrap, config.port()));
     }
 
     static final boolean SSL = System.getProperty("ssl") != null;

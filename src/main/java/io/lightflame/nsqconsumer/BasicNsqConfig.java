@@ -4,11 +4,11 @@ import java.net.InetSocketAddress;
 
 public class BasicNsqConfig implements NsqConfig{
 
-    private int port;
-    private String host;
-    private String topic;
-    private String channel;
-    private FlameNsqFunction func;
+    int port;
+    String host;
+    String topic;
+    String channel;
+    FlameNsqFunction func;
 
     public BasicNsqConfig(String host, int port, String topic, String channel, FlameNsqFunction func){
         this.port = port;
@@ -29,7 +29,24 @@ public class BasicNsqConfig implements NsqConfig{
     }
 
     @Override
-    public NsqConsumerHandler handler() {
-        return new NsqConsumerHandler(this.topic, this.channel, this.func);
+    public String channel() {
+        return this.channel;
     }
+
+    @Override
+    public String topic() {
+        return this.topic;
+    }
+
+    @Override
+    public FlameNsqFunction function() {
+        return this.func;
+    }
+
+    @Override
+    public int rdy() {
+        return 2;
+    }
+
+
 }

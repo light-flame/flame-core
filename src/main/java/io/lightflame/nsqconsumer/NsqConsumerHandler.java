@@ -11,22 +11,22 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public class NsqConsumerHandler extends SimpleChannelInboundHandler<ByteBuf>{
 
-    private BufferManager bufferManager;
+    private MessageProcessing messageProcessing;
 
 
-    public NsqConsumerHandler(String topic, String channel, FlameNsqFunction f) {
-        bufferManager = new BufferManager(topic, channel, f);
+    public NsqConsumerHandler(NsqConfig config) {
+        this.messageProcessing = new MessageProcessing(config);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx){
-        bufferManager.addMagic(ctx);
+        messageProcessing.magic(ctx).sub(ctx);
     }
 
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, ByteBuf in) {
-        Queue<FrameType> q = bufferManager
+    public void channelRead0(ChannelHandlerContext ctx, ByteBuf in) throws Exception{
+        Queue<FrameType> q = messageProcessing
             .addBuffer(in)
             .buildQueue()
             .getQueue();

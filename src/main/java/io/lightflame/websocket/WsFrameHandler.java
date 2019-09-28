@@ -50,8 +50,8 @@ public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> 
             WsRequestWrapper wrapper = new WsRequestWrapper(request, uri, this.port);
 
             try {
-                FlameWsContext flameCtx = new FlameWsStore().runFunctionByRequest(wrapper);
-                ctx.channel().writeAndFlush(new TextWebSocketFrame(flameCtx.getResponse()));
+                FlameWsResponse response = new FlameWsStore().runFunctionByRequest(wrapper);
+                ctx.channel().writeAndFlush(new TextWebSocketFrame(response.getResponse()));
             }catch(Exception e){
                 ExceptionWsFunction fExc =  new FlameWsExceptionStore().getFunction(e);
                 fExc.call(e);

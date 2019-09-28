@@ -24,15 +24,15 @@ public class FlameWsStore {
     }
 
     static private RouteStore<WsRequestWrapper> rs = new WsRouteStore();
-    static private Map<String, Flame<FlameWsContext, FlameWsContext>> functionMap = new HashMap<>();
+    static private Map<String, Flame<FlameWsContext, FlameWsResponse>> functionMap = new HashMap<>();
 
-    FlameWsContext runFunctionByRequest(WsRequestWrapper wrapper) throws Exception{
+    FlameWsResponse runFunctionByRequest(WsRequestWrapper wrapper) throws Exception{
 
         RouteRules<WsRequestWrapper> routeRules = rs.getRouteRules(wrapper);
         if (routeRules == null) {
             return null;
         }
-        Flame<FlameWsContext,FlameWsContext> function = functionMap.get(routeRules.getKey());
+        Flame<FlameWsContext,FlameWsResponse> function = functionMap.get(routeRules.getKey());
 
         FlameWsContext ctx = new FlameWsContext(wrapper.getRequest());
         return function.apply(ctx);

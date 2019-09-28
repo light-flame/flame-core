@@ -40,16 +40,14 @@ public class FlameHttpStore {
     private Flame custom404 = handler404();
 
     public FlameHttpStore() {
-        this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
     }
 
     public FlameHttpStore(int port) {
-        this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
+        this.port = port;
     }
 
     public FlameHttpStore(String prefix) {
         this.prefix = prefix;
-        this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
     }
 
     public FlameHttpStore(int port, String prefix) {

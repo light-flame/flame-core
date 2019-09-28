@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.lightflame.bootstrap.Flame;
 import io.lightflame.routerules.RouteRules;
 import io.lightflame.routerules.RouteStore;
 import io.lightflame.routerules.Rule;
@@ -16,7 +17,7 @@ import io.lightflame.routerules.WsPathRule;
 public class FlameWsStore {
 
     static private RouteStore<WsRequestWrapper> rs = new WsRouteStore();
-    static private Map<String, FlameWsFunction> functionMap = new HashMap<>();
+    static private Map<String, Flame<FlameWsContext, FlameWsContext>> functionMap = new HashMap<>();
 
     FlameWsContext runFunctionByRequest(WsRequestWrapper wrapper) throws Exception{
 
@@ -24,10 +25,10 @@ public class FlameWsStore {
         if (routeRules == null) {
             return null;
         }
-        FlameWsFunction function = functionMap.get(routeRules.getKey());
+        Flame<FlameWsContext,FlameWsContext> function = functionMap.get(routeRules.getKey());
 
         FlameWsContext ctx = new FlameWsContext(wrapper.getRequest());
-        return function.chain(ctx);
+        return function.apply(ctx);
     }
 
     public BuildRoute R(){
@@ -46,7 +47,7 @@ public class FlameWsStore {
             );
         }
 
-        public void path(String url, FlameWsFunction function){
+        public void path(String url, Flame function){
             functionMap.put(this.addToStore(url), function);
         }
     }

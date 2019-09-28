@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.lightflame.bootstrap.Flame;
 import io.lightflame.bootstrap.NettyConfig;
 import io.lightflame.bootstrap.NettyConfig.ListenerKind;
 import io.lightflame.routerules.HttpMethodRule;
@@ -32,12 +33,12 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 
 public class FlameHttpStore {
 
-    static private Map<String, FlameHttpFunction> functionMap = new HashMap<>();
+    static private Map<String, Flame<FlameHttpContext, FlameHttpContext>> functionMap = new HashMap<>();
     static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
 
     private String prefix = "";
     private Integer port;
-    private FlameHttpFunction custom404 = handler404();
+    private Flame custom404 = handler404();
 
     public FlameHttpStore() {
         this.port = NettyConfig.getAvaliablePort(ListenerKind.HTTP_WS);
@@ -53,7 +54,7 @@ public class FlameHttpStore {
         this.port = port;
     }
 
-    public FlameHttpStore add404Function(FlameHttpFunction f){
+    public FlameHttpStore add404Function(Flame f){
         this.custom404 = f;
         return this;
     }
@@ -66,7 +67,7 @@ public class FlameHttpStore {
     }
 
     FlameHttpContext runFunctionByRequest(FullHttpRequest request) throws Exception{
-        FlameHttpFunction function = this.custom404;
+        Flame<FlameHttpContext, FlameHttpContext> function = this.custom404;
 
         RouteRules<FullHttpRequest> routeRules = rs.getRouteRules(request);
         if (routeRules != null) {
@@ -74,7 +75,7 @@ public class FlameHttpStore {
         }
 
         FlameHttpContext ctx = new FlameHttpContext(request, new HttpUtils(), routeRules);
-        return function.chain(ctx);
+        return function.apply(ctx);
     }
 
     public class BuildRoute{
@@ -109,15 +110,15 @@ public class FlameHttpStore {
             return this;
         }    
 
-        public void httpALL(String url, FlameHttpFunction function){
+        public void httpALL(String url, Flame function){
         }    
 
-        public void httpGET(String url, FlameHttpFunction function){
+        public void httpGET(String url, Flame function){
             rules.add(new HttpMethodRule(HttpMethod.GET));
             functionMap.put(this.addToStore(url), function);
         }
     
-        public void httpPOST(String url, FlameHttpFunction function){
+        public void httpPOST(String url, Flame function){
             rules.add(new HttpMethodRule(HttpMethod.POST));
     
             functionMap.put(this.addToStore(url), function);
@@ -130,7 +131,7 @@ public class FlameHttpStore {
 
 
 
-    private FlameHttpFunction handler404() {
+    private Flame<FlameHttpContext, FlameHttpContext> handler404() {
         return (ctx) -> {
             FullHttpResponse response = new DefaultFullHttpResponse(
                 ctx.getRequest().protocolVersion(), 

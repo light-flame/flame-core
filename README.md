@@ -77,7 +77,6 @@ Now you can declare the simple handler:
 ```java
 package init;
 
-import io.lightflame.http.FlameHttpFunction;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;

@@ -8,8 +8,6 @@ public interface Flame<T, R> {
 
     default <V> Flame<T, V> and(Flame<R, V> after) {
         Objects.requireNonNull(after);
-        return (t) -> {
-            return after.apply(this.apply(t));
-        };
+        return (t) -> after.apply(this.apply(t));
     }
 }

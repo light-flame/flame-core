@@ -1,5 +1,7 @@
 package io.lightflame.nsqconsumer;
 
+import io.lightflame.bootstrap.Flame;
+
 import java.net.InetSocketAddress;
 
 public class BasicNsqConfig implements NsqConfig{
@@ -8,9 +10,9 @@ public class BasicNsqConfig implements NsqConfig{
     String host;
     String topic;
     String channel;
-    FlameNsqFunction func;
+    Flame<FlameNsqContext, FlameNsqContext> func;
 
-    public BasicNsqConfig(String host, int port, String topic, String channel, FlameNsqFunction func){
+    public BasicNsqConfig(String host, int port, String topic, String channel, Flame<FlameNsqContext, FlameNsqContext> func){
         this.port = port;
         this.host = host;
         this.channel = channel;
@@ -39,7 +41,7 @@ public class BasicNsqConfig implements NsqConfig{
     }
 
     @Override
-    public FlameNsqFunction function() {
+    public Flame function() {
         return this.func;
     }
 

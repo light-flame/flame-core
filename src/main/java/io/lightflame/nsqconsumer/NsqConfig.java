@@ -1,5 +1,7 @@
 package io.lightflame.nsqconsumer;
 
+import io.lightflame.bootstrap.Flame;
+
 import java.net.InetSocketAddress;
 
 public interface NsqConfig {
@@ -7,6 +9,6 @@ public interface NsqConfig {
     int port();
     String channel();
     String topic();
-    FlameNsqFunction function();
+    Flame<FlameNsqContext, FlameNsqContext> function();
     int rdy();
 }

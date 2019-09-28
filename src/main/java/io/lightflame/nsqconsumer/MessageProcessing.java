@@ -88,7 +88,7 @@ public class MessageProcessing {
             String msg =  msgBuf.toString(CharsetUtil.UTF_8);
 
             try {
-                FlameNsqContext res = config.function().chain(new FlameNsqContext(ts, msgId, msg, ctx));
+                FlameNsqContext res = config.function().apply(new FlameNsqContext(ts, msgId, msg, ctx));
                 cmds.ack(ctx, msgId);
             }catch (Exception e){
                 throw new Exception(e);

@@ -33,7 +33,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 
 public class FlameHttpStore {
 
-    static private Map<String, Flame<FlameHttpContext, FlameHttpContext>> functionMap = new HashMap<>();
+    static private Map<String, Flame> functionMap = new HashMap<>();
     static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
 
     private String prefix = "";

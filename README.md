@@ -1,6 +1,6 @@
 # Light flame
 
-Ligth flame is a modern Era ultra **light height web framework** based on netty and made for people who like to have more control over the application, since the input of the data entrance, to the output. Everything is highly configurable... So, if you are used to frameworks that make all the things for you like DI, handlers, services and repositories and all the stuffs with a lot of annotations and like it, light flame insn't for you.
+Ligth flame is a modern Era ultra **light height web framework** based on netty and made for people who  like to have more control over the application, since the input of the data entrance, to the output. Everything is highly configurable... 
 
 If you want to configure all by yourself, and have all control of your code, business logical without infer directly with the framework, so, light flame its perfectly made for you. We also encourage you to use it In a way that your code could be totally readable and decouple from the infra parts.
 
@@ -33,7 +33,7 @@ Using maven, declare dependency:
 
 
 ```java
-package com.init;
+package init;
 
 import io.lightflame.bootstrap.LightFlame;
 
@@ -52,7 +52,7 @@ public class App
 
 create a class that contain the configuration function, in this example, HandleConfig:
 ```java
-package com.init;
+package init;
 
 import io.lightflame.bootstrap.ConfigFunction;
 import io.lightflame.http.FlameHttpStore;
@@ -75,7 +75,7 @@ public class HandlerConfig {
 ```
 Now you can declare the simple handler:
 ```java
-package com.init;
+package init;
 
 import io.lightflame.http.FlameHttpFunction;
 import io.netty.buffer.Unpooled;
@@ -105,7 +105,7 @@ public class Handler {
 There is a bunch of existing rules that you can to route to your handler. The **FlameHttpStore** provides a way to store your functions and generate the rule for all.
 
 ```java
-package com.routing;
+package routing;
 
 import io.lightflame.bootstrap.ConfigFunction;
 import io.lightflame.http.FlameHttpStore;
@@ -145,64 +145,64 @@ TODO: on next release
 Lightflame provides a simple way to test you application. You can test either if the route works depending on request, and all the steps throw the route.  
 
 ```java
-package com.init;
+package init;
 
+public class TestingHandler {
+}
 
-import static org.junit.Assert.assertEquals;
+```
+# Multi port
 
+You can open multiple ports to work. and declare different or the same function to each port. Look at this simple example how it works. Its simple as look like:
 
-import org.junit.Before;
-import org.junit.Test;
+```java
+package multihttp;
 
 import io.lightflame.bootstrap.LightFlame;
-import io.lightflame.http.HttpServerHandler;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpResponseDecoder;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.util.CharsetUtil;
 
-/**
- * TestingHelloWorld
- */
-public class TestingHandler {
-
-    EmbeddedChannel channel;
-
-    @Before
-    public void createChannel(){
-        channel = new EmbeddedChannel(
-            new HttpResponseDecoder(), 
-            new HttpServerHandler()
-        );
-    }
-
-    @Before
-    public void configureLightFlame(){
+public class App 
+{
+    public static void main( String[] args )
+    {
         new LightFlame()
-            .runConfiguration(new HandlerConfig().setDefautHandlers(), null);
+                .addBasicLog4jConfig()
+                .addHttpAndWsListener(8080)
+                .addHttpAndWsListener(8090)
+                .start(App.class);
     }
+}
 
-    @Test
-    public void simpleHelloWorld(){
-        FullHttpRequest httpRequest = new DefaultFullHttpRequest(
-                HttpVersion.HTTP_1_1, 
-                HttpMethod.GET, 
-                "/api/hello/world/simple",
-                Unpooled.copiedBuffer("world", CharsetUtil.UTF_8)
-        );
-        channel.writeInbound(httpRequest);
+```
 
-        // get response
-        FullHttpResponse ctx = channel.readOutbound();
-        String msg = ctx.content().toString(CharsetUtil.UTF_8);
-        assertEquals(msg.equals("hello world"), true);
+than when you configure the project you just have to declare the port on constructor of **FlameHttpStore** like this:
 
+```java
+package multihttp;
+
+import io.lightflame.bootstrap.ConfigFunction;
+import io.lightflame.http.FlameHttpStore;
+import routing.Handler;
+
+public class HandlerConfig {
+
+    public ConfigFunction setDefautHandlers() {
+        return (config) -> {
+            Handler handler = new Handler();
+
+            // flame store to port 8080
+            FlameHttpStore fs1 = new FlameHttpStore(8080,"/api");
+
+            fs1.R().httpGET("/*", handler.simpleGreeting()); // widecard route
+            fs1.R().httpGET("/path/to/my/url", handler.simpleGreeting());
+
+            // flame store to port 8080
+            FlameHttpStore fs2 = new FlameHttpStore(8090,"/api");
+
+            fs2.R().httpGET("/*", handler.simpleGreeting()); // widecard route
+            fs2.R().httpGET("/path/to/my/url", handler.simpleGreeting());
+
+            return null;
+        };
     }
-
 }
 ```

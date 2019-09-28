@@ -2,5 +2,5 @@ package io.lightflame.nsqconsumer;
 
 @FunctionalInterface
 public interface FlameNsqFunction {
-    FlameNsqCtx chain(FlameNsqCtx ctx) throws Exception;
+    FlameNsqContext chain(FlameNsqContext ctx) throws Exception;
 }

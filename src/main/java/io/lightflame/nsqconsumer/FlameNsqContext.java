@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 /**
  * FlameNsqCtx
  */
-public class FlameNsqCtx {
+public class FlameNsqContext {
 
     private long timeStamp;
     private String msgId;
@@ -13,7 +13,7 @@ public class FlameNsqCtx {
     private ChannelHandlerContext ctx;
     private NsqCommands cmds = new NsqCommands();
 
-    FlameNsqCtx(long timeStamp, String msgId, String msg, ChannelHandlerContext ctx) {
+    FlameNsqContext(long timeStamp, String msgId, String msg, ChannelHandlerContext ctx) {
         this.timeStamp = timeStamp;
         this.msgId = msgId;
         this.msg = msg;

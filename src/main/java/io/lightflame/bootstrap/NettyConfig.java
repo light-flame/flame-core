@@ -3,7 +3,9 @@ package io.lightflame.bootstrap;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.lightflame.nsqconsumer.NsqConfig;
 import io.lightflame.nsqconsumer.NsqConsumerHandler;
@@ -27,29 +29,16 @@ import io.netty.handler.logging.LoggingHandler;
  */
 public class NettyConfig {
 
-    private static EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    private static EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private static List<Listener> listeners = new ArrayList<>();
-
-    static public Integer getAvaliablePort(ListenerKind lk){
-        for (Listener listener : listeners){
-            if (listener.kind().equals(lk)){
-                return listener.port();
-            }
-        }
-        return null;
-    }
-
-    public enum ListenerKind{
-        HTTP_WS,TCP_SERVER,NSQ_CONSUMER
-    }
+    private EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+    private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private Map<Integer, Listener> listeners = new HashMap<>();
 
 
     interface Listener{
         void bind() throws InterruptedException;
         void sync()throws InterruptedException;
         Integer port();
-        ListenerKind kind();
+        void close();
     }
 
     static class HttpWsServerListener implements Listener{
@@ -73,13 +62,13 @@ public class NettyConfig {
         }
 
         @Override
-        public ListenerKind kind() {
-            return ListenerKind.HTTP_WS;
+        public Integer port() {
+            return this.port;
         }
 
         @Override
-        public Integer port() {
-            return this.port;
+        public void close() {
+            this.ch.close();
         }
     }
     static class TcpServerListener implements Listener{
@@ -100,16 +89,16 @@ public class NettyConfig {
         @Override
         public void sync()throws InterruptedException {
             this.ch.closeFuture().sync();
-        } 
-
-        @Override
-        public ListenerKind kind() {
-            return ListenerKind.TCP_SERVER;
         }
 
         @Override
         public Integer port() {
             return this.port;
+        }
+
+        @Override
+        public void close() {
+
         }
     }
 
@@ -134,29 +123,31 @@ public class NettyConfig {
         }
 
         @Override
-        public ListenerKind kind() {
-            return ListenerKind.NSQ_CONSUMER;
-        }
-
-        @Override
         public Integer port() {
             return this.port;
         }
-        
+
+        @Override
+        public void close() {
+
+        }
+
     }
 
     
 
-    static void newHttpWsListener(int port){
+    void newHttpWsListener(int port){
         ServerBootstrap http = new ServerBootstrap();
         http.option(ChannelOption.SO_BACKLOG, 1024);
-        http.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+        http.group(bossGroup, workerGroup);
+        http.channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .childHandler(new PipelineFactory(port, null));
-                listeners.add(new HttpWsServerListener(http, port));
+        Listener listener = new HttpWsServerListener(http, port);
+        bindAndPut(listener, port);
     }
 
-    static void newServerTcpChannel(String host, int port){
+    void newServerTcpChannel(String host, int port){
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup);
         serverBootstrap.channel(NioServerSocketChannel.class);
@@ -167,10 +158,11 @@ public class NettyConfig {
                 socketChannel.pipeline().addLast(new TcpHandler());
             }
         });
-        listeners.add(new TcpServerListener(serverBootstrap, port));
+        Listener listener = new TcpServerListener(serverBootstrap, port);
+        bindAndPut(listener, port);
     }
 
-    static void newNsqConsumer(NsqConfig config){
+    void newNsqConsumer(NsqConfig config){
         Bootstrap clientBootstrap = new Bootstrap();
 
         clientBootstrap.group(bossGroup);
@@ -181,19 +173,30 @@ public class NettyConfig {
                 socketChannel.pipeline().addLast(new NsqConsumerHandler(config));
             }
         });
-        listeners.add(new NsqConsumerListener(clientBootstrap, config.port()));
+        Listener listener =  new NsqConsumerListener(clientBootstrap, config.port());
+        bindAndPut(listener, config.port());
     }
 
-    static final boolean SSL = System.getProperty("ssl") != null;
-    static final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
+    void bindAndPut(Listener listener, int port){
+        try {
+            listener.bind();
+            listeners.put(port, listener);
+        }catch (InterruptedException e){
+            throw new RuntimeException(e);
+        }
+    }
 
-    static void start() {
+    void closeListenerByPort(int port){
+        listeners.remove(port).close();
+    }
+
+    final boolean SSL = System.getProperty("ssl") != null;
+    final int PORT = Integer.parseInt(System.getProperty("port", SSL ? "8443" : "8080"));
+
+    void start() {
         
         try {
-            for (Listener listener : listeners){
-                listener.bind();
-            }
-            for (Listener listener : listeners){
+            for (Listener listener : listeners.values()){
                 listener.sync();
             }
         }catch(Exception e){

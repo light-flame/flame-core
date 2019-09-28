@@ -10,14 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * LightFlame
- */
 public class LightFlame {
 
     private static final Logger LOGGER = Logger.getLogger(LightFlame.class);
     private Logger rootLogger = Logger.getRootLogger();
     private List<ConfigStore> configsStore = new ArrayList<>();
+    private NettyConfig netty = new NettyConfig();
 
     class ConfigStore{
         private ConfigFunction func;
@@ -43,17 +41,17 @@ public class LightFlame {
 
     
     public LightFlame addHttpAndWsListener(int port){
-        NettyConfig.newHttpWsListener(port);
+        this.netty.newHttpWsListener(port);
         return this;
     } 
 
     public LightFlame addNsqConsumer(NsqConfig conf){
-        NettyConfig.newNsqConsumer(conf);
+        this.netty.newNsqConsumer(conf);
         return this;
     } 
 
     public LightFlame addTcpServerListener(String host, int port){
-        NettyConfig.newServerTcpChannel(host, port);
+        this.netty.newServerTcpChannel(host, port);
         return this;
     }
 
@@ -67,6 +65,14 @@ public class LightFlame {
         }
     }
 
+    public void closeChannel(int port){
+        this.netty.closeListenerByPort(port);
+    }
+
+//    public void openChannel(int port, NettyConfig.ListenerKind kind){
+//        this.netty.openListener(port, kind);
+//    }
+
     public void start(Class<?> clazz) {     
         if (!rootLogger.getAllAppenders().hasMoreElements()) {
             rootLogger.addAppender(new NullAppender());
@@ -76,7 +82,7 @@ public class LightFlame {
             cs.func.setup(cs.conf);
         }
         
-        LOGGER.info("Light-flame staring!");
-        NettyConfig.start();
+        LOGGER.info("Light Flame ready!");
+        netty.start();
     }
 }

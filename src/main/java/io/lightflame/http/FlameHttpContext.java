@@ -39,13 +39,13 @@ public class FlameHttpContext{
         return res;
     }
 
-    FlameHttpContext(FullHttpRequest req) {
-        this.req = req;
-    }
-    
     FlameHttpContext(FullHttpRequest req, HttpUtils utils, RouteRules<FullHttpRequest> routeRule) {
         this.routeRule = routeRule;
         this.utils = utils;
         this.req = req;
+    }
+
+    FlameHttpContext(FullHttpResponse res) {
+        this.res = res;
     }
 }

@@ -152,7 +152,7 @@ public class NettyConfig {
         http.option(ChannelOption.SO_BACKLOG, 1024);
         http.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new PipelineFactory(null));
+                .childHandler(new PipelineFactory(port, null));
                 listeners.add(new HttpWsServerListener(http, port));
     }
 

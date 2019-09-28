@@ -6,15 +6,22 @@ import java.util.List;
 import java.util.Map;
 
 import io.lightflame.bootstrap.Flame;
-import io.lightflame.routerules.RouteRules;
-import io.lightflame.routerules.RouteStore;
-import io.lightflame.routerules.Rule;
-import io.lightflame.routerules.WsPathRule;
+import io.lightflame.routerules.*;
 
 /**
  * FlameWebSocketStore
  */
 public class FlameWsStore {
+
+    private int port = 8080;
+
+    public FlameWsStore(int port){
+        this.port = port;
+    }
+
+    public FlameWsStore(){
+
+    }
 
     static private RouteStore<WsRequestWrapper> rs = new WsRouteStore();
     static private Map<String, Flame<FlameWsContext, FlameWsContext>> functionMap = new HashMap<>();
@@ -32,10 +39,16 @@ public class FlameWsStore {
     }
 
     public BuildRoute R(){
-        return new BuildRoute();
+        return new BuildRoute(this.port);
      }
 
     public class BuildRoute{
+
+        private int port;
+
+        BuildRoute(int port){
+            this.rules.add(new WsPortRule(port));
+        }
 
         private List<Rule<WsRequestWrapper>> rules = new ArrayList<>();
 

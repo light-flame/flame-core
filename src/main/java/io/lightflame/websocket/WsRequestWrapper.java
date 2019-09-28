@@ -5,12 +5,14 @@ package io.lightflame.websocket;
  */
 public class WsRequestWrapper {
 
+    private int port;
     private String request;
     private String uri;
 
-    public WsRequestWrapper(String request, String uri) {
+    WsRequestWrapper(String request, String uri, int port) {
         this.request = request;
         this.uri = uri;
+        this.port = port;
     }
 
     /**
@@ -18,6 +20,10 @@ public class WsRequestWrapper {
      */
     public String getRequest() {
         return request;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     /**

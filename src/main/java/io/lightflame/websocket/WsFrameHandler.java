@@ -16,6 +16,11 @@ public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> 
 
     private final AttributeKey<String> uriAttKey = AttributeKey.valueOf("request.uri");
     private final AttributeKey<HttpHeaders> headersAttrKey = AttributeKey.valueOf("request.headers");
+    private int port;
+
+    public WsFrameHandler(int port){
+        this.port = port;
+    }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -42,7 +47,7 @@ public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> 
             // Send the uppercase string back.
             String request = ((TextWebSocketFrame) frame).text();
 
-            WsRequestWrapper wrapper = new WsRequestWrapper(request, uri);
+            WsRequestWrapper wrapper = new WsRequestWrapper(request, uri, this.port);
 
             try {
                 FlameWsContext flameCtx = new FlameWsStore().runFunctionByRequest(wrapper);

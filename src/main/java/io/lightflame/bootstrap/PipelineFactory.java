@@ -18,9 +18,11 @@ import io.netty.handler.ssl.SslContext;
 public class PipelineFactory extends ChannelInitializer<SocketChannel>{
 
     private final SslContext sslCtx;
+    private int port;
 
-    public PipelineFactory(SslContext sslCtx) {
-        this.sslCtx = sslCtx;
+    public PipelineFactory(int port, SslContext ssl) {
+        this.sslCtx = ssl;
+        this.port = port;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class PipelineFactory extends ChannelInitializer<SocketChannel>{
         p.addLast(new WebSocketServerCompressionHandler());
         p.addLast(new WebSocketServerProtocolHandler("/ws", null, true));
 
-        p.addLast(new WsFrameHandler());
+        p.addLast(new WsFrameHandler(this.port));
         p.addLast(new HttpServerHandler());
     }
 }

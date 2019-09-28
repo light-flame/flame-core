@@ -106,20 +106,11 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
         // Decide whether to close the connection or not.
         boolean keepAlive = HttpUtil.isKeepAlive(request);
 
-        // Build the response object.
-        
-        // FullHttpResponse response = new DefaultFullHttpResponse(
-        //         HTTP_1_1, currentObj.decoderResult().isSuccess()? OK : BAD_REQUEST,
-        //         Unpooled.copiedBuffer(buf.toString(), CharsetUtil.UTF_8));
-
-        // response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-
         try {
-            FlameHttpContext flameCtx = new FlameHttpStore().runFunctionByRequest(request);
-            response = flameCtx.getResponse();
+            this.response = new FlameHttpStore().runFunctionByRequest(request).response();
         }catch(Exception e){
             ExceptionHttpFunction fExc =  new FlameHttpExceptionStore().getFunction(e);
-            response = fExc.call(e);
+            this.response = fExc.call(e);
         }finally{
             writeOnEnd(ctx, keepAlive);
         }

@@ -1,4 +1,4 @@
-# Light flame
+# Light Flame
 
 Ligth flame is a modern Era ultra **light height web framework** based on netty and made for people who  like to have more control over the application, since the input of the data entrance, to the output. Everything is highly configurable... 
 
@@ -18,7 +18,7 @@ If you want to configure all by yourself, and have all control of your code, bus
  
 You can have some of our boiler plates example of projects using our engine and some principles of DDD, and microservices structure. I hope you enjoy, use it and help us to improve even more this simple code.
 
-# Instalation
+## Instalation
 
 Using maven, declare dependency:
 ```maven
@@ -29,7 +29,7 @@ Using maven, declare dependency:
 </dependency>
 ```
 
-# Quick Start
+## Quick Start
 
 
 ```java
@@ -97,7 +97,7 @@ public class Handler {
 }
 ```
 
-# Routing rules
+## Routing rules
 
 There is a bunch of existing rules that you can to route to your handler. The **FlameHttpStore** provides a way to store your functions and generate the rule for all.
 
@@ -134,10 +134,69 @@ public class HandlerConfig {
 }
 ```
 
-# Router middleware
-TODO: on next release
+## Flame Stores
 
-# Testing
+The stores is the core API to designate the entrance of data on API. Lightflame supports:
+
+* Http layer using **FlameHttpStore**
+* Websocket layer using **FlameWsStore**
+* NSQ message queue declaring on main lightflame class (see example above)
+* Apache Kafka [issue #1]
+* TCP server [issue #2]
+
+(other supports on demmand. open issue if needed)
+
+## Flame<IN,OUT> chainning API
+This is one of the most important thing about lightflame. Everything is function, so every endpoint that you declare you can concatenate one or more function to this handler.
+
+For example, to pass a http function to **FlameHttpStore** you have to declare a Flame function with **FlameHttpContext** as input and a **FlameHttpResponse** as a output. But you can chain multiple functions on the middle that connect the input with the output. Look at this example below:
+
+```java
+package com.ws;
+
+import io.lightflame.bootstrap.Flame;
+import io.lightflame.http.FlameHttpContext;
+import io.lightflame.http.FlameHttpResponse;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.HttpResponseStatus;
+
+import java.io.File;
+import java.io.FileInputStream;
+
+public class StaticHandler {
+
+    Flame<FlameHttpContext, File> getRootFile() { // 4
+        return (ctx) -> {
+            return new File(getClass().getClassLoader().getResource("dist/index.html").getFile());
+        };
+    }
+
+    Flame<FlameHttpContext, File> getOtherFiles() { // 5
+        return (ctx) -> {
+            String url = ctx.getPathWithoutPrefix();
+            return new File(getClass().getClassLoader().getResource("dist/" + url).getFile());
+        };
+    }
+
+    Flame<File, FlameHttpResponse> proccess() { // 4 and 5
+        return (ctx) -> {
+            FileInputStream inFile = new FileInputStream(ctx);
+            ByteBuf buffer = Unpooled.copiedBuffer(inFile.readAllBytes());
+            inFile.close();
+            return new FlameHttpResponse(HttpResponseStatus.OK, buffer);
+        };
+    }
+}
+```
+
+In this one you have this ordering:
+
+FlameHttpContext -> java.io.File -> FlameHttpResponse
+
+So, you can chain function **proccess()** either 4 or 5!
+
+## Testing
 
 Lightflame provides a simple way to test you application. You can test either if the route works depending on request, and all the steps throw the route.  
 
@@ -148,7 +207,7 @@ public class TestingHandler {
 }
 
 ```
-# Multi port
+## Multi port
 
 You can open multiple ports to work. and declare different or the same function to each port. Look at this simple example how it works. Its simple as look like:
 
@@ -204,7 +263,7 @@ public class HandlerConfig {
 }
 ```
 
-# Web Socket and Static files (2 in 1)
+## Web Socket and Static files (2 in 1)
 
 You can access the full example on **flame-examples** repository on github. In this one we openned two different ports, one to serve the static files and another to WS, but you can do it using the same port
 
@@ -227,8 +286,8 @@ public class App {
 ```
 In this example we:
 
-1 - add a listener on port 8080 to static file
-2 - add a listener on port 8081 to websocket
+1. add a listener on port 8080 to static file
+2. add a listener on port 8081 to websocket
 
 ```java
 package com.ws;
@@ -260,11 +319,11 @@ public class Config {
 }
 ```
 
-3 - Its important to use the same port declared in the main file to instanciate the stores. If you dont do it the handler will throw an error.
+3. Its important to use the same port declared in the main file to instanciate the stores. If you dont do it the handler will throw an error.
 
-4 - the first handler execute two functions on context "/" (getRootFile() -> proccess()). This one is responsible to get the root index.html file and the second one process the file
+4. the first handler execute two functions on context "/" (getRootFile() -> proccess()). This one is responsible to get the root index.html file and the second one process the file
 
-5 - this handler execute function on a widecard context after "/static/*". This happens to bring all other files that html will call, like style and js. In this one we used another function as the first one, but we mantain the second one, since the process is the same.
+5. this handler execute function on a widecard context after "/static/*". This happens to bring all other files that html will call, like style and js. In this one we used another function as the first one, but we mantain the second one, since the process is the same.
 
 ```java
 package com.ws;

@@ -1,9 +1,6 @@
 package io.lightflame.http;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import io.lightflame.bootstrap.Flame;
 import io.lightflame.routerules.HttpMethodRule;
@@ -25,7 +22,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 
 public class FlameHttpStore {
 
-    static private Map<String, Flame> functionMap = new HashMap<>();
+    static private Map<UUID, Flame> functionMap = new HashMap<>();
     static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
 
     private String prefix = "";
@@ -81,7 +78,7 @@ public class FlameHttpStore {
             }
         }
 
-        private String addToStore(String url){
+        private UUID addToStore(String url){
             rules.add((url.contains("*")) ? new HttpPrefixPathRule(this.prefix + url) : new HttpPathRule(this.prefix + url));
             return rs.addRouteRule(
                 new RouteRules<FullHttpRequest>()
@@ -104,9 +101,11 @@ public class FlameHttpStore {
         public void httpALL(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
         }    
 
-        public void httpGET(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+        public UUID httpGET(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
             rules.add(new HttpMethodRule(HttpMethod.GET));
-            functionMap.put(this.addToStore(url), function);
+            UUID key = this.addToStore(url);
+            functionMap.put(key, function);
+            return key;
         }
     
         public void httpPOST(String url, Flame<FlameHttpContext, FlameHttpResponse> function){

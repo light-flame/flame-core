@@ -13,9 +13,9 @@ abstract public class RouteStore<E> {
 
     private List<RouteRules<E>> routeRules = new ArrayList<>();
 
-    public String addRouteRule(RouteRules<E> routeRule){
+    public UUID addRouteRule(RouteRules<E> routeRule){
         if (routeRule.getKey() == null){
-            routeRule.setKey(UUID.randomUUID().toString());
+            routeRule.setKey(UUID.randomUUID());
         }
         routeRules.add(routeRule);
         return routeRule.getKey();

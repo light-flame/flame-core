@@ -12,30 +12,27 @@ import java.util.UUID;
 public class RouteRules<E> {
 
     List<Rule<E>> ruleList = new ArrayList<>();
-    private String key;
+    private UUID key;
 
-    public RouteRules(String k) {
+    public RouteRules(UUID k) {
         this.key = k;
     }
 
     public RouteRules() {
-        this.key = UUID.randomUUID().toString();
+        this.key = UUID.randomUUID();
     }
 
-    public String getKey(){
+    public UUID getKey(){
         return this.key;
     }
 
-    void setKey(String k){
+    void setKey(UUID k){
         this.key = k;
     }
 
     public Rule<E> getRule(RuleKind rk) {
         Optional<Rule<E>> ruleOpt = ruleList.stream().filter(x -> x.kind() == rk).findFirst();
-        if (ruleOpt.isPresent()){
-            return ruleOpt.get();
-        }
-        return null;
+        return ruleOpt.orElse(null);
     }
 
     

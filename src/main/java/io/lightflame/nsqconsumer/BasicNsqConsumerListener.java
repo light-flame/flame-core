@@ -14,7 +14,7 @@ public class BasicNsqConsumerListener implements Listener {
     private Channel ch;
     private int port;
 
-    public void BasicNsqConsumerListener(NsqConfig config){
+    public BasicNsqConsumerListener(NsqConfig config){
         Bootstrap clientBootstrap = new Bootstrap();
 
         clientBootstrap.channel(NioSocketChannel.class);

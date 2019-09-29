@@ -1,9 +1,6 @@
 package io.lightflame.websocket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import io.lightflame.bootstrap.Flame;
 import io.lightflame.routerules.*;
@@ -24,7 +21,7 @@ public class FlameWsStore {
     }
 
     static private RouteStore<WsRequestWrapper> rs = new WsRouteStore();
-    static private Map<String, Flame<FlameWsContext, FlameWsResponse>> functionMap = new HashMap<>();
+    static private Map<UUID, Flame<FlameWsContext, FlameWsResponse>> functionMap = new HashMap<>();
 
     FlameWsResponse runFunctionByRequest(WsRequestWrapper wrapper) throws Exception{
 
@@ -52,7 +49,7 @@ public class FlameWsStore {
 
         private List<Rule<WsRequestWrapper>> rules = new ArrayList<>();
 
-        private String addToStore(String url){
+        private UUID addToStore(String url){
             rules.add(new WsPathRule(url));
             return rs.addRouteRule(
                 new RouteRules<WsRequestWrapper>()
@@ -60,8 +57,10 @@ public class FlameWsStore {
             );
         }
 
-        public void path(String url, Flame function){
-            functionMap.put(this.addToStore(url), function);
+        public UUID path(String url, Flame<FlameWsContext,FlameWsResponse> function){
+            UUID k = this.addToStore(url);
+            functionMap.put(k, function);
+            return k;
         }
     }
 }

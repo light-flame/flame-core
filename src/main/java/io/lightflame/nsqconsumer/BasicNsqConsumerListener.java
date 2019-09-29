@@ -20,11 +20,11 @@ public class BasicNsqConsumerListener implements Listener {
         clientBootstrap.channel(NioSocketChannel.class);
         clientBootstrap.remoteAddress(config.socketAddress());
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
+            protected void initChannel(SocketChannel socketChannel) {
                 socketChannel.pipeline().addLast(new NsqConsumerHandler(config));
             }
         });
-        this.bs = bs;
+        this.bs = clientBootstrap;
         this.port = config.port();
     }
 

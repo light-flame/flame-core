@@ -7,18 +7,12 @@ package io.lightflame.websocket;
 public class FlameWsContext{
 
     private String request;
-    private String response;
 
-    FlameWsContext(String r){
-        this.request = r;
+    FlameWsContext(WsRequestWrapper rw){
+        this.request = rw.getRequest();
     }
 
-    public void setResponse(String response) {
-        this.response = response;
+    public String getRequest() {
+        return request;
     }
-
-    String getResponse() {
-        return response;
-    }
-
 }

@@ -35,11 +35,11 @@ Using maven, declare dependency:
 ```java
 package init;
 
-import io.lightflame.bootstrap.LightFlame;
+import io.lightflame.bootstrap.FlameCore;
 
 public class App {
     public static void main( String[] args ) {
-        new LightFlame()
+        new FlameCore()
                 .addBasicLog4jConfig()
                 .addConfiguration(new HandlerConfig().setDefautHandlers(), null)
                 .addHttpAndWsListener(8080)
@@ -214,13 +214,13 @@ You can open multiple ports to work. and declare different or the same function 
 ```java
 package multihttp;
 
-import io.lightflame.bootstrap.LightFlame;
+import io.lightflame.bootstrap.FlameCore;
 
 public class App 
 {
     public static void main( String[] args )
     {
-        new LightFlame()
+        new FlameCore()
                 .addBasicLog4jConfig()
                 .addHttpAndWsListener(8080)
                 .addHttpAndWsListener(8090)
@@ -270,11 +270,11 @@ You can access the full example on **flame-examples** repository on github. In t
 ```java
 package com.ws;
 
-import io.lightflame.bootstrap.LightFlame;
+import io.lightflame.bootstrap.FlameCore;
 
 public class App {
     public static void main(String[] args) {
-        new LightFlame()
+        new FlameCore()
                 .addConfiguration(new Config().setDefautHandlers(), null)
                 .addBasicLog4jConfig()
                 .addHttpAndWsListener(8080) // 1

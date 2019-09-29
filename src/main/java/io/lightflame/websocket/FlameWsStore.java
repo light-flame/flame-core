@@ -31,7 +31,7 @@ public class FlameWsStore {
         }
         Flame<FlameWsContext,FlameWsResponse> function = functionMap.get(routeRules.getKey());
 
-        FlameWsContext ctx = new FlameWsContext(wrapper.getRequest());
+        FlameWsContext ctx = new FlameWsContext(wrapper);
         return function.apply(ctx);
     }
 

@@ -8,13 +8,13 @@ import java.util.Map;
  */
 public class Utils {
 
-    static String[] extractSegments(String uri){
+    public static String[] extractSegments(String uri){
         uri = uri.split("\\?")[0];
         uri = uri.startsWith("/") ? uri.replaceFirst("/", "") : uri;
         return uri.split("/");
     }
 
-    static Map<String,String> extractQueryParam(String uri){
+    public static Map<String,String> extractQueryParam(String uri){
         String[] uriP = uri.split("\\?");
         if (uriP.length != 2) return new HashMap<>();
         String qparam = uriP[1];

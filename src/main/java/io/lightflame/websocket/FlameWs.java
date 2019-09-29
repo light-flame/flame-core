@@ -4,35 +4,39 @@ import java.util.*;
 
 import io.lightflame.bootstrap.Flame;
 import io.lightflame.routerules.*;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * FlameWebSocketStore
  */
-public class FlameWsStore {
+public class FlameWs {
 
     private int port = 8080;
 
-    public FlameWsStore(int port){
+    public FlameWs(int port){
         this.port = port;
     }
 
-    public FlameWsStore(){
+    public FlameWs(){
 
     }
 
-    static private RouteStore<WsRequestWrapper> rs = new WsRouteStore();
+    static private Session session = new Session();
+    static private RouteStore<ChannelHandlerContext> rs = new WsRouteStore();
     static private Map<UUID, Flame<FlameWsContext, FlameWsResponse>> functionMap = new HashMap<>();
 
-    FlameWsResponse runFunctionByRequest(WsRequestWrapper wrapper) throws Exception{
+    FlameWsResponse runFunctionByRequest(ChannelHandlerContext ctx) throws Exception{
 
-        RouteRules<WsRequestWrapper> routeRules = rs.getRouteRules(wrapper);
+        RouteRules<ChannelHandlerContext> routeRules = rs.getRouteRules(ctx);
         if (routeRules == null) {
             return null;
         }
         Flame<FlameWsContext,FlameWsResponse> function = functionMap.get(routeRules.getKey());
+        return function.apply(new FlameWsContext(ctx, session));
+    }
 
-        FlameWsContext ctx = new FlameWsContext(wrapper);
-        return function.apply(ctx);
+    void addChannelToSession(String key, ChannelHandlerContext ch){
+        session.addSession(key, ch);
     }
 
     public BuildRoute R(){
@@ -47,12 +51,12 @@ public class FlameWsStore {
             this.rules.add(new WsPortRule(port));
         }
 
-        private List<Rule<WsRequestWrapper>> rules = new ArrayList<>();
+        private List<Rule<ChannelHandlerContext>> rules = new ArrayList<>();
 
         private UUID addToStore(String url){
             rules.add(new WsPathRule(url));
             return rs.addRouteRule(
-                new RouteRules<WsRequestWrapper>()
+                new RouteRules<ChannelHandlerContext>()
                     .addRules(rules)
             );
         }
@@ -62,5 +66,6 @@ public class FlameWsStore {
             functionMap.put(k, function);
             return k;
         }
+
     }
 }

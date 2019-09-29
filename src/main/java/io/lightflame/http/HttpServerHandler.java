@@ -15,10 +15,6 @@
  */
 package io.lightflame.http;
 
-import io.lightflame.http.ExceptionHttpFunction;
-import io.lightflame.http.FlameHttpContext;
-import io.lightflame.http.FlameHttpExceptionStore;
-import io.lightflame.http.FlameHttpStore;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -107,7 +103,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<Object> {
         boolean keepAlive = HttpUtil.isKeepAlive(request);
 
         try {
-            this.response = new FlameHttpStore().runFunctionByRequest(request).response();
+            this.response = new FlameHttp().runFunctionByRequest(request).response();
         }catch(Exception e){
             ExceptionHttpFunction fExc =  new FlameHttpExceptionStore().getFunction(e);
             this.response = fExc.call(e);

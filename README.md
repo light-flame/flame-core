@@ -36,13 +36,15 @@ Using maven, declare dependency:
 package init;
 
 import io.lightflame.bootstrap.FlameCore;
+import io.lightflame.bootstrap.FlameLog4jConfig;
+import io.lightflame.http.BasicHttpWsListener;
 
 public class App {
     public static void main( String[] args ) {
         new FlameCore()
-                .addBasicLog4jConfig()
-                .addConfiguration(new HandlerConfig().setDefautHandlers(), null)
-                .addHttpAndWsListener(8080)
+                .addConfiguration(new FlameLog4jConfig().basicConfig())
+                .addConfiguration(new HandlerConfig().setDefautHandlers())
+                .addListener(new BasicHttpWsListener(8080))
                 .start(App.class);
     }
 }
@@ -54,20 +56,18 @@ create a class that contain the configuration function, in this example, HandleC
 package init;
 
 import io.lightflame.bootstrap.ConfigFunction;
-import io.lightflame.http.FlameHttpStore;
+import io.lightflame.http.FlameHttp;
 
 public class HandlerConfig {
 
     public ConfigFunction setDefautHandlers() {
-        return (config) -> {
+        return () -> {
             Handler handler = new Handler();
 
             // flame store
-            FlameHttpStore fs =  new FlameHttpStore("/api");
+            FlameHttp fs =  new FlameHttp("/api");
 
             fs.R().httpGET("/hello/world/simple", handler.simpleGreeting());
-
-            return null;
         };
     }
 }
@@ -105,17 +105,17 @@ There is a bunch of existing rules that you can to route to your handler. The **
 package routing;
 
 import io.lightflame.bootstrap.ConfigFunction;
-import io.lightflame.http.FlameHttpStore;
+import io.lightflame.http.FlameHttp;
 
 public class HandlerConfig {
 
     public ConfigFunction setDefautHandlers() {
-        return (config) -> {
+        return () -> {
             Handler handler = new Handler();
 
 
             // flame store
-            FlameHttpStore  fs  =  new  FlameHttpStore("/api");
+            FlameHttp  fs  =  new  FlameHttp("/api");
 
             fs.R().httpGET("/*", handler.simpleGreeting()); // widecard route
             fs.R().httpGET("/path/to/my/url", handler.simpleGreeting());
@@ -127,8 +127,6 @@ public class HandlerConfig {
                 .queryRule("name","daniel")
                 .pathRule("name","daniel")
                 .httpALL("/*", handler.simpleGreeting());
-
-            return null;
         };
     }
 }
@@ -215,15 +213,17 @@ You can open multiple ports to work. and declare different or the same function 
 package multihttp;
 
 import io.lightflame.bootstrap.FlameCore;
+import io.lightflame.bootstrap.FlameLog4jConfig;
+import io.lightflame.http.BasicHttpWsListener;
 
 public class App 
 {
     public static void main( String[] args )
     {
         new FlameCore()
-                .addBasicLog4jConfig()
-                .addHttpAndWsListener(8080)
-                .addHttpAndWsListener(8090)
+                .addConfiguration(new FlameLog4jConfig().basicConfig())
+                .addListener(new BasicHttpWsListener(8080))
+                .addListener(new BasicHttpWsListener(8090))
                 .start(App.class);
     }
 }
@@ -236,28 +236,26 @@ then when you configure the project you just have to declare the port on constru
 package multihttp;
 
 import io.lightflame.bootstrap.ConfigFunction;
-import io.lightflame.http.FlameHttpStore;
+import io.lightflame.http.FlameHttp;
 import routing.Handler;
 
 public class HandlerConfig {
 
     public ConfigFunction setDefautHandlers() {
-        return (config) -> {
+        return () -> {
             Handler handler = new Handler();
 
             // flame store to port 8080
-            FlameHttpStore fs1 = new FlameHttpStore(8080,"/api");
+            FlameHttp fs1 = new FlameHttp(8080,"/api");
 
             fs1.R().httpGET("/*", handler.simpleGreeting()); // widecard route
             fs1.R().httpGET("/path/to/my/url", handler.simpleGreeting());
 
             // flame store to port 8080
-            FlameHttpStore fs2 = new FlameHttpStore(8090,"/api");
+            FlameHttp fs2 = new FlameHttp(8090,"/api");
 
             fs2.R().httpGET("/*", handler.simpleGreeting()); // widecard route
             fs2.R().httpGET("/path/to/my/url", handler.simpleGreeting());
-
-            return null;
         };
     }
 }
@@ -271,14 +269,16 @@ You can access the full example on **flame-examples** repository on github. In t
 package com.ws;
 
 import io.lightflame.bootstrap.FlameCore;
+import io.lightflame.bootstrap.FlameLog4jConfig;
+import io.lightflame.http.BasicHttpWsListener;
 
 public class App {
     public static void main(String[] args) {
         new FlameCore()
-                .addConfiguration(new Config().setDefautHandlers(), null)
-                .addBasicLog4jConfig()
-                .addHttpAndWsListener(8080) // 1
-                .addHttpAndWsListener(8081) // 2
+                .addConfiguration(new Config().setDefautHandlers())
+                .addConfiguration(new FlameLog4jConfig().basicConfig())
+                .addListener(new BasicHttpWsListener(8080)) // 1
+                .addListener(new BasicHttpWsListener(8081)) // 2
                 .start(App.class);
         }
 }
@@ -293,26 +293,25 @@ In this example we:
 package com.ws;
 
 import io.lightflame.bootstrap.ConfigFunction;
-import io.lightflame.http.FlameHttpStore;
-import io.lightflame.websocket.FlameWsStore;
+import io.lightflame.http.FlameHttp;
+import io.lightflame.websocket.FlameWs;
 
 public class Config {
 
     public ConfigFunction setDefautHandlers() {
-        return (config) -> {
+        return () -> {
 
             // http
             StaticHandler sHandler = new StaticHandler();
-            FlameHttpStore httpStore = new FlameHttpStore(8080); // 3
+            FlameHttp httpStore = new FlameHttp(8080); // 3
             httpStore.R().httpGET("/", sHandler.getRootFile().and(sHandler.proccess())); // 4
             httpStore.R().httpGET("/static/*", sHandler.getOtherFiles().and(sHandler.proccess())); // 5
 
             // websocket
             WsHandler wsHandler = new WsHandler();
-            FlameWsStore wsStore =  new FlameWsStore(8081); // 3
+            FlameWs wsStore =  new FlameWs(8081); // 3
             wsStore.R().path("/ws", wsHandler.webSocketFunc()); // 6
 
-            return null;
         };
     }
     
@@ -369,8 +368,6 @@ Now we have the static hander with our three functions. The last one is the main
 ```java
 package com.ws;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.List;
 

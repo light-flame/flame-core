@@ -14,8 +14,6 @@ import io.netty.util.AttributeKey;
  */
 public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    private final AttributeKey<String> uriAttKey = AttributeKey.valueOf("request.uri");
-    private final AttributeKey<HttpHeaders> headersAttrKey = AttributeKey.valueOf("request.headers");
     private int port;
 
     public WsFrameHandler(int port){
@@ -28,29 +26,33 @@ public class WsFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> 
             HandshakeComplete handshake = (HandshakeComplete)evt;
 
             HttpHeaders headers = handshake.requestHeaders();
-            String uri = handshake.requestUri(); 
+            String uri = handshake.requestUri();
 
             //put to channel context
-            ctx.channel().attr(uriAttKey).set(uri);
-            ctx.channel().attr(headersAttrKey).set(headers);
+            ctx.channel().attr(WsAttributes.uriAttKey).set(uri);
+            ctx.channel().attr(WsAttributes.headersAttrKey).set(headers);
+            new FlameWs().addChannelToSession(headers.get("Sec-WebSocket-Key"),ctx);
 
         }else{
             ctx.fireUserEventTriggered(evt);
         }
     }
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
         // ping and pong frames already handled
         if (frame instanceof TextWebSocketFrame) {
-            String uri = ctx.channel().attr(uriAttKey).get();
-            // Send the uppercase string back.
-            String request = ((TextWebSocketFrame) frame).text();
 
-            WsRequestWrapper wrapper = new WsRequestWrapper(request, uri, this.port);
+            // Send the uppercase string back.
+            System.out.println("msg: " + (frame));
+            String message = ((TextWebSocketFrame) frame).text();
+            System.out.println("msg: " + message);
+            ctx.channel().attr(WsAttributes.requestAttKey).set(message);
+            ctx.channel().attr(WsAttributes.portAttKey).set(String.valueOf(port));
 
             try {
-                FlameWsResponse response = new FlameWsStore().runFunctionByRequest(wrapper);
+                FlameWsResponse response = new FlameWs().runFunctionByRequest(ctx);
                 ctx.channel().writeAndFlush(new TextWebSocketFrame(response.getResponse()));
             }catch(Exception e){
                 ExceptionWsFunction fExc =  new FlameWsExceptionStore().getFunction(e);

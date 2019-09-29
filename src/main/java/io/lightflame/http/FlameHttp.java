@@ -20,7 +20,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  * HttpBeanStore
  */
 
-public class FlameHttpStore {
+public class FlameHttp {
 
     static private Map<UUID, Flame> functionMap = new HashMap<>();
     static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
@@ -29,23 +29,23 @@ public class FlameHttpStore {
     private int port = 8080;
     private Flame custom404 = handler404();
 
-    public FlameHttpStore() {
+    public FlameHttp() {
     }
 
-    public FlameHttpStore(int port) {
+    public FlameHttp(int port) {
         this.port = port;
     }
 
-    public FlameHttpStore(String prefix) {
+    public FlameHttp(String prefix) {
         this.prefix = prefix;
     }
 
-    public FlameHttpStore(int port, String prefix) {
+    public FlameHttp(int port, String prefix) {
         this.prefix = prefix;
         this.port = port;
     }
 
-    public FlameHttpStore add404Function(Flame f){
+    public FlameHttp add404Function(Flame f){
         this.custom404 = f;
         return this;
     }
@@ -115,7 +115,7 @@ public class FlameHttpStore {
         }
     }
 
-    public FlameHttpStore addHeaderRyle(){
+    public FlameHttp addHeaderRyle(){
         return this;
     }
 

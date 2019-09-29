@@ -1,18 +1,23 @@
 package io.lightflame.websocket;
 
 
+import io.netty.channel.ChannelHandlerContext;
+
 /**
  * FlameWebSocketCtx
  */
-public class FlameWsContext{
+public class FlameWsContext {
 
-    private String request;
+    private ChannelHandlerContext ctx;
+    private Session session;
 
-    FlameWsContext(WsRequestWrapper rw){
-        this.request = rw.getRequest();
+
+    FlameWsContext(ChannelHandlerContext ctx, Session session){
+        this.ctx = ctx;
+        this.session = session;
     }
 
-    public String getRequest() {
-        return request;
+    public String message() {
+        return ctx.channel().attr(WsAttributes.requestAttKey).get();
     }
 }

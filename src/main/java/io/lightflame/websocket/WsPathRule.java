@@ -1,11 +1,15 @@
-package io.lightflame.routerules;
+package io.lightflame.websocket;
 
-import io.lightflame.websocket.WsRequestWrapper;
+import io.lightflame.routerules.HttpRuleKind;
+import io.lightflame.routerules.Rule;
+import io.lightflame.routerules.RuleKind;
+import io.lightflame.routerules.Utils;
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * HttpPathRule
  */
-public class WsPathRule implements Rule<WsRequestWrapper>{
+public class WsPathRule implements Rule<ChannelHandlerContext> {
     private String[] segments;
 
     public WsPathRule(String obj) {
@@ -13,8 +17,9 @@ public class WsPathRule implements Rule<WsRequestWrapper>{
     }
 
     @Override
-    public boolean isValid(WsRequestWrapper req) {
-        String[] incomeSegments = Utils.extractSegments(req.getUri());
+    public boolean isValid(ChannelHandlerContext ctx) {
+        String uri = ctx.channel().attr(WsAttributes.uriAttKey).get();
+        String[] incomeSegments = Utils.extractSegments(uri);
 
         if (incomeSegments.length != segments.length){
             return false;

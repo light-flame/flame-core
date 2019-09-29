@@ -33,4 +33,9 @@ public class FlameMock implements LightFlame{
         configFunctions.add(configFunction);
         return this;
     }
+
+    @Override
+    public void closeChannel(int port) {
+        LOGGER.info("channel closed");
+    }
 }

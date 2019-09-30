@@ -22,7 +22,7 @@ public class FlameWs {
     }
 
     static private Session session = new Session();
-    static private RouteStore<ChannelHandlerContext> rs = new WsRouteStore();
+    static private RouteStore<ChannelHandlerContext> rs = new RouteStore<>();
     static private Map<UUID, Flame<FlameWsContext, FlameWsContext>> functionMap = new HashMap<>();
 
     FlameWsContext runFunctionByRequest(ChannelHandlerContext ctx) throws Exception{

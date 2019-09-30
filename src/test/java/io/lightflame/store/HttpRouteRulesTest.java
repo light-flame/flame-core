@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.lightflame.http.HttpRouteStore;
 import io.lightflame.routerules.*;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -23,7 +22,7 @@ public class HttpRouteRulesTest {
     @Test
     public void testcase0(){
 
-        RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+        RouteStore<FullHttpRequest> rs = new RouteStore<>();
 
         UUID r1 =  UUID.randomUUID();
         rs.addRouteRule(
@@ -121,7 +120,7 @@ public class HttpRouteRulesTest {
     @Test
     public void testcase2(){
 
-        RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+        RouteStore<FullHttpRequest> rs = new RouteStore<>();
 
         UUID r1 =  UUID.randomUUID();
         rs.addRouteRule(
@@ -154,7 +153,7 @@ public class HttpRouteRulesTest {
     @Test
     public void testcase3(){
 
-        RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+        RouteStore<FullHttpRequest> rs = new RouteStore<>();
 
         UUID r1 =  UUID.randomUUID();
         rs.addRouteRule(

@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * RuleUtil
  */
-abstract public class RouteStore<E> {
+public class RouteStore<E> {
 
     private List<RouteRules<E>> routeRules = new ArrayList<>();
 

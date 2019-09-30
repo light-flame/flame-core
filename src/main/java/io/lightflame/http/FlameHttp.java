@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 public class FlameHttp {
 
     static private Map<UUID, Flame> functionMap = new HashMap<>();
-    static private RouteStore<FullHttpRequest> rs = new HttpRouteStore();
+    static private RouteStore<FullHttpRequest> rs = new  RouteStore<>();
 
     private String prefix = "";
     private int port = 8080;

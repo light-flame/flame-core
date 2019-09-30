@@ -23,15 +23,15 @@ public class FlameWs {
 
     static private Session session = new Session();
     static private RouteStore<ChannelHandlerContext> rs = new WsRouteStore();
-    static private Map<UUID, Flame<FlameWsContext, FlameWsResponse>> functionMap = new HashMap<>();
+    static private Map<UUID, Flame<FlameWsContext, FlameWsContext>> functionMap = new HashMap<>();
 
-    FlameWsResponse runFunctionByRequest(ChannelHandlerContext ctx) throws Exception{
+    FlameWsContext runFunctionByRequest(ChannelHandlerContext ctx) throws Exception{
 
         RouteRules<ChannelHandlerContext> routeRules = rs.getRouteRules(ctx);
         if (routeRules == null) {
             return null;
         }
-        Flame<FlameWsContext,FlameWsResponse> function = functionMap.get(routeRules.getKey());
+        Flame<FlameWsContext,FlameWsContext> function = functionMap.get(routeRules.getKey());
         return function.apply(new FlameWsContext(ctx, session));
     }
 
@@ -61,7 +61,7 @@ public class FlameWs {
             );
         }
 
-        public UUID path(String url, Flame<FlameWsContext,FlameWsResponse> function){
+        public UUID path(String url, Flame<FlameWsContext,FlameWsContext> function){
             UUID k = this.addToStore(url);
             functionMap.put(k, function);
             return k;

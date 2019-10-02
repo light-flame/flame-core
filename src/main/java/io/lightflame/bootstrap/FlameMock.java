@@ -24,8 +24,9 @@ public class FlameMock implements LightFlame{
     }
 
     @Override
-    public void runListener(Listener listener) {
+    public FlameMock addListener(Listener listener) {
         LOGGER.info("Running listener");
+        return this;
     }
 
     @Override

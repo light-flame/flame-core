@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 
 public class FlameCore implements LightFlame{
@@ -18,9 +19,7 @@ public class FlameCore implements LightFlame{
     private Logger rootLogger = Logger.getRootLogger();
     private List<ConfigFunction> configFunctions = new ArrayList<>();
 
-    private EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    private EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private Map<Integer, Listener> listeners = new HashMap<>();
+    private ListenerSync listenerSync = new ListenerSync();
 
 
     @Override
@@ -29,38 +28,16 @@ public class FlameCore implements LightFlame{
         return this;
     }
 
+    @Override
     public FlameCore addListener(Listener listener){
-        this.listeners.put(listener.port(), listener);
+        listenerSync.addListener(listener);
         return this;
     }
 
     @Override
-    public void runListener(Listener listener){
-        try{
-            listener.bind(bossGroup,workerGroup);
-        }catch (InterruptedException e){
-            exit();
-        }
-    }
-
-    public void removeListener(int port){
-        Listener l = this.listeners.remove(port);
-        l.close();
-    }
-
-    @Override
     public boolean closeChannel(int port){
-        Listener listener = listeners.get(port);
-        if (listener == null){
-            return false;
-        }
-        listener.close();
-        return true;
+        return listenerSync.close(port);
     }
-
-//    public void openChannel(int port, NettyConfig.ListenerKind kind){
-//        this.netty.openListener(port, kind);
-//    }
 
 
     @Override
@@ -72,25 +49,7 @@ public class FlameCore implements LightFlame{
         for (ConfigFunction cs : configFunctions){
             cs.run();
         }
-
-        try {
-            for (Listener listener : listeners.values()){
-                listener.bind(bossGroup, workerGroup);
-            }
-            LOGGER.info("Light Flame ready!");
-            for (Listener listener : listeners.values()){
-                listener.sync();
-            }
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }finally {
-            exit();
-        }
-    }
-
-
-    public void exit(){
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
+        LOGGER.info("Light Flame ready!");
+        listenerSync.startSync();
     }
 }

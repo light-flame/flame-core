@@ -49,8 +49,13 @@ public class FlameCore implements LightFlame{
     }
 
     @Override
-    public void closeChannel(int port){
-        listeners.get(port).close();
+    public boolean closeChannel(int port){
+        Listener listener = listeners.get(port);
+        if (listener == null){
+            return false;
+        }
+        listener.close();
+        return true;
     }
 
 //    public void openChannel(int port, NettyConfig.ListenerKind kind){

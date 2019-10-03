@@ -86,6 +86,11 @@ public class FlameHttp {
             );
         }
 
+        public BuildRoute methodRule(HttpMethod method){
+            rules.add(new HttpMethodRule(method));
+            return this;
+        }
+
         public BuildRoute headerRule(String key, String value){
             return this;
         }
@@ -98,28 +103,32 @@ public class FlameHttp {
             return this;
         }    
 
-        public void httpALL(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+        public UUID httpALL(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+            UUID key = this.addToStore(url);
+            functionMap.put(key, function);
+            return key;
         }    
 
         public UUID httpGET(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
             rules.add(new HttpMethodRule(HttpMethod.GET));
-            UUID key = this.addToStore(url);
-            functionMap.put(key, function);
-            return key;
+            return httpALL(url, function);
         }
     
-        public void httpPOST(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+        public UUID httpPOST(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
             rules.add(new HttpMethodRule(HttpMethod.POST));
-    
-            functionMap.put(this.addToStore(url), function);
+            return httpALL(url, function);
+        }
+
+        public UUID httpPUT(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+            rules.add(new HttpMethodRule(HttpMethod.PUT));
+            return httpALL(url, function);
+        }
+
+        public UUID httpPATCH(String url, Flame<FlameHttpContext, FlameHttpResponse> function){
+            rules.add(new HttpMethodRule(HttpMethod.PATCH));
+            return httpALL(url, function);
         }
     }
-
-    public FlameHttp addHeaderRyle(){
-        return this;
-    }
-
-
 
     private Flame<FlameHttpContext, FlameHttpResponse> handler404() {
         return (ctx) -> new FlameHttpResponse(
